@@ -1,0 +1,2544 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+Client/
+  src/
+    main/
+      java/
+        com/
+          example/
+            Client.java
+            ClientEngine.java
+            InpOutFactory.java
+            Reader.java
+            ServerManager.java
+            Wrapper.java
+            WrapperUtils.java
+  pom.xml
+Server/
+  src/
+    main/
+      java/
+        com/
+          example/
+            collection/
+              AstartesCategory.java
+              Chapter.java
+              Coordinates.java
+              MeleeWeapon.java
+              SpaceMarine.java
+              Weapon.java
+            commands/
+              Clear.java
+              Command.java
+              CountLessThanHealth.java
+              ExecuteScriptFileName.java
+              Exit.java
+              FilterGreaterThanChapter.java
+              FilterLessThanChapter.java
+              Help.java
+              History.java
+              Info.java
+              InsertNull.java
+              RemoveKeyNull.java
+              RemoveLowerKeyNull.java
+              ReplaceIfLoweNull.java
+              Save.java
+              Show.java
+              UpdateId.java
+            exeptions/
+              ArgExeption.java
+              CommandExeption.java
+              FileExeption.java
+              IdElemExeption.java
+              InputExeption.java
+              NotElemExeption.java
+              ReadExeption.java
+              RecordExeption.java
+              RecursExeption.java
+            managers/
+              CollectionManager.java
+              CommandManager.java
+              FileManager.java
+              InputManager.java
+              ServerEngine.java
+              ServerManager.java
+            utils/
+              Deserializer.java
+              InputPack.java
+              OutputPack.java
+              PackFactory.java
+              Parser.java
+              Wrapper.java
+              WrapperUtils.java
+            logback.xml
+            Main.java
+  pom.xml
+.gitignore
+8800
+data.csv
+pom.xml
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="Client/src/main/java/com/example/Client.java">
+package com.example;
+
+import java.io.IOException;
+
+/**
+ * Главный класс приложения отвечающий за запуск работы с коллекциями
+ * <p>
+ *  Функции класса
+ *  <ul>
+ *      <li> Чтение коллекции с помощью файл менеджера </li>
+ *      <li> Создание коллекшн менеджера и запуск работы с коллекцией </li>
+ *      <li> Обработка пользовательских комманд </li>
+ *      <li> Обработка некоторых ошибок </li>
+ * </ul>
+ */
+public class Client {
+    /**
+     * Начало программы
+     *  <ol>
+     *      <li> Получаем имя файла </li>
+     *      <li> Считываем коллекцию </li>
+     *      <li> Создаем коллекшн менеджер и команд менеджер </li>
+     *      <li> Запускаем режим интерактивной работы с коллекцией </li>
+     *  </ol>
+     */
+    public static void main(String[] args) throws IOException {
+        ServerManager channel = new ServerManager(12345);
+
+        ClientEngine clientEngine = new ClientEngine(channel);
+
+        clientEngine.run();
+    }
+}
+</file>
+
+<file path="Client/src/main/java/com/example/ClientEngine.java">
+package com.example;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+public class ClientEngine {
+    InpOutFactory factory;
+    ServerManager serverManager;
+    Reader reader;
+
+    public ClientEngine(ServerManager newServerManager) {
+        factory = new InpOutFactory();
+        serverManager = newServerManager;
+        reader = new Reader();
+    }
+
+    public void run() throws IOException {
+        while (true) {
+            try {
+                String input = reader.readLine();
+
+                if (input == null) {
+                    continue;
+                }
+                processing(input);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void processing(String input) throws IOException {
+        ByteBuffer sendBuf = factory.OutputFactory(input);
+        try {
+            serverManager.send(sendBuf);
+
+            ByteBuffer vvodBuf = ByteBuffer.allocate(16384);
+
+            vvodBuf = serverManager.recive(vvodBuf);
+
+            String itog  = factory.InputFactory(vvodBuf);
+
+            System.out.println(itog);
+        } catch (Exception e) {
+            System.out.println("Ошибка, команда не выполнена "  + e.getMessage());
+        }
+    }
+}
+</file>
+
+<file path="Client/src/main/java/com/example/InpOutFactory.java">
+package com.example;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+public class InpOutFactory {
+    ObjectMapper mapper;
+    WrapperUtils utils;
+    public InpOutFactory() {
+        mapper = new ObjectMapper();
+        utils = new WrapperUtils(31);
+    }
+
+    public ByteBuffer OutputFactory(String input) throws JsonProcessingException {
+        input = input.trim();
+
+        if (input.equals("exit")) {
+            System.exit(0);
+        }
+        Wrapper outWrap = new Wrapper();
+
+        int sum = utils.getControlSum(input);
+        int hash = utils.makeHash(input);
+
+        outWrap.setZapr(input, sum, hash);
+
+        byte[] jsonByte = mapper.writeValueAsBytes(outWrap);
+
+        return ByteBuffer.wrap(jsonByte);
+    }
+
+    public String InputFactory(ByteBuffer buffer) throws IOException {
+        if (buffer == null) {
+            return "";
+        }
+
+        buffer.flip();
+        byte[] data = new byte[buffer.limit()];
+
+        buffer.get(data);
+        Wrapper prvvod = mapper.readValue(data, Wrapper.class);
+        String itog  = prvvod.getZapr();
+
+        int sum = utils.getControlSum(itog);
+        int hash = utils.makeHash(itog);
+
+        if (sum != prvvod.getControlSum()) {
+            System.out.println("Ошибка в контрольной сумме");
+        }
+        if (hash != prvvod.getHash()) {
+            System.out.println("Ошибка в хеше сумме");
+        }
+
+        return itog;
+    }
+}
+</file>
+
+<file path="Client/src/main/java/com/example/Reader.java">
+package com.example;
+
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+public class Reader {
+    LineReader reader;
+    Terminal terminal = null;
+
+    public  Reader() {
+        try {
+            terminal = TerminalBuilder.builder().system(true).build();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        reader = LineReaderBuilder.builder().terminal(terminal).build();
+    }
+
+    public String readLine() {
+        String input = null;
+        try {
+            input = reader.readLine();
+        } catch (Exception e) {
+            System.out.println("ввод завершен");
+        }
+
+        return input;
+    }
+}
+</file>
+
+<file path="Client/src/main/java/com/example/ServerManager.java">
+package com.example;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+
+public class ServerManager {
+    DatagramChannel channel;
+    InetSocketAddress serverAdress;
+
+    public ServerManager(int port) throws IOException {
+        channel = DatagramChannel.open();
+        channel.configureBlocking(false);
+        serverAdress = new InetSocketAddress("localhost", 12345);
+    }
+
+    public ByteBuffer recive(ByteBuffer vvodBuf) throws IOException, InterruptedException {
+        long otpravTime = System.currentTimeMillis();
+        long timeOut = 5000;
+        while(true) {
+
+            java.net.SocketAddress from  = channel.receive(vvodBuf);
+
+            if (from != null) {
+                break;
+            }
+
+            if (System.currentTimeMillis() - otpravTime > timeOut) {
+                System.out.println("Сервер не ответил");
+                return null;
+            }
+
+            Thread.sleep(100);
+        }
+        return vvodBuf;
+    }
+
+    public void send(ByteBuffer buf) throws IOException {
+        channel.send(buf, serverAdress);
+    }
+}
+</file>
+
+<file path="Client/src/main/java/com/example/Wrapper.java">
+package com.example;
+
+public class Wrapper {
+    private String zapr = "";
+    private long otpravTime;
+    private int controlSum;
+    private int hash;
+
+    public Wrapper() {
+        otpravTime = System.currentTimeMillis();
+    }
+
+    public void setZapr(String nzapr, int newcontrolsum, int newhash) {
+        zapr = nzapr;
+        controlSum = newcontrolsum;
+        hash = newhash;
+    }
+
+    public String getZapr() {
+        return zapr;
+    }
+    public int getControlSum() {
+        return controlSum;
+    }
+
+    public int getHash() {
+        return hash;
+    }
+
+    public long getOtpravTime() {
+        return otpravTime;
+    }
+}
+</file>
+
+<file path="Client/src/main/java/com/example/WrapperUtils.java">
+package com.example;
+
+public class WrapperUtils {
+    static int mod = 16384;
+    int prost;
+    public WrapperUtils(int nprost){
+        prost = nprost;
+    }
+
+    public int getControlSum(String mes) {
+        int sum = 0;
+        for (int i=0; i < mes.length(); i++) {
+            int simvcode = mes.charAt(i);
+            sum = sum + simvcode;
+            sum = sum % mod;
+        }
+
+        return sum;
+    }
+
+    public int makeHash(String mes) {
+        int hash = 0;
+        for (int i=0; i < mes.length(); i++) {
+            int simvcode = mes.charAt(i);
+            hash = hash * prost + simvcode;
+            hash = hash % mod;
+        }
+
+        return hash;
+    }
+}
+</file>
+
+<file path="Client/pom.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>lab6maven</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>Client</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version> <!-- Use latest version -->
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.21.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>3.0.0.M1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.21.3</version>
+        </dependency>
+    </dependencies>
+
+</project>
+</file>
+
+<file path="Server/src/main/java/com/example/collection/AstartesCategory.java">
+package com.example.collection;
+/**
+ * Енам категории космодесантника
+ *
+ */
+public enum AstartesCategory {
+    ASSAULT,
+    TACTICAL,
+    HELIX;
+}
+</file>
+
+<file path="Server/src/main/java/com/example/collection/Chapter.java">
+package com.example.collection;
+/**
+ * Класс ордена космодесантника
+ *
+ */
+public class Chapter implements Comparable<Chapter> {
+    private String name; //Поле не может быть null, Строка не может быть пустой
+    private String parentLegion;
+    private long marinesCount; //Значение поля должно быть больше 0, Максимальное значение поля: 1000
+    private String world; //Поле может быть null
+
+    public Chapter(String nname, String nparentLegion, long nmarinesCount, String nworld) {
+        name = nname;
+        parentLegion = nparentLegion;
+        marinesCount = nmarinesCount;
+        world = nworld;
+    }
+
+
+    @Override
+    public int compareTo(Chapter p) {
+        return Double.compare(this.marinesCount, p.marinesCount);
+    }
+
+    public long getMarinesCount() {
+        return marinesCount;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public String getParentLegion() {
+        return parentLegion;
+    }
+    public String getWorld() {
+        return world;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/collection/Coordinates.java">
+package com.example.collection;
+/**
+ * Класс координат космоесантника
+ *
+ */
+public class Coordinates {
+    private Float x; //Поле не может быть null
+    private Long y; //Максимальное значение поля: 759, Поле не может быть null
+
+    public Coordinates(Float nx, Long ny) {
+        x = nx;
+        y = ny;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public long getY() {
+        return y;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/collection/MeleeWeapon.java">
+package com.example.collection;
+/**
+ * Енам оружия ближнего боя космодесантника
+ *
+ */
+public enum MeleeWeapon {
+    CHAIN_SWORD,
+    POWER_SWORD,
+    CHAIN_AXE,
+    MANREAPER,
+    POWER_FIST;
+}
+</file>
+
+<file path="Server/src/main/java/com/example/collection/SpaceMarine.java">
+package com.example.collection;
+
+import com.example.collection.MeleeWeapon;
+
+import java.time.LocalDateTime;
+/**
+ * Базовый класс космодесантника
+ *
+ */
+public class SpaceMarine implements Comparable<SpaceMarine> {
+    private int id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+    private String name; //Поле не может быть null, Строка не может быть пустой
+    private Coordinates coordinates; //Поле не может быть null
+    private LocalDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+    private double health; //Значение поля должно быть больше 0
+    private AstartesCategory category; //Поле не может быть null
+    private Weapon weaponType; //Поле может быть null
+    private MeleeWeapon meleeWeapon; //Поле не может быть null
+    private Chapter chapter; //Поле не может быть null
+
+    public SpaceMarine(int nid, String nname, Coordinates ncoordinates, LocalDateTime time,  double nhealth, AstartesCategory ncategory, Weapon nweaponType, MeleeWeapon nmeleeWeapon, Chapter nchapter) {
+        id = nid;
+        name = nname;
+        coordinates = ncoordinates;
+        creationDate = time;
+        health = nhealth;
+        category = ncategory;
+        weaponType = nweaponType;
+        meleeWeapon = nmeleeWeapon;
+        chapter = nchapter;
+    }
+
+    @Override
+    public int compareTo(SpaceMarine p) {
+        return Double.compare(this.health, p.health);
+    }
+
+    public int getId() {
+        return id;
+    }
+    public double getHealth() {
+        return health;
+    }
+    public String getName() {
+        return name;
+    }
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+    public Chapter getChapter() {
+        return chapter;
+    }
+
+    public LocalDateTime spaceGetTime() {
+        return creationDate;
+    }
+
+    public AstartesCategory getCategory() {
+        return category;
+    }
+
+    public Weapon getWeaponType() {
+        return weaponType;
+    }
+
+    public MeleeWeapon getMeleeWeapon() {
+        return meleeWeapon;
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "id= " + id + " name= " + name + " health= " + health + " chapter= "
+                + chapter.getName() + " world = " + chapter.getWorld();
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/collection/Weapon.java">
+package com.example.collection;
+/**
+ * Енам основного оружия космодесантника
+ *
+ */
+public enum Weapon {
+    BOLTGUN,
+    MELTAGUN,
+    FLAMER,
+    HEAVY_FLAMER;
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Clear.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.managers.CollectionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда для удаления всех элементов коллекции
+ *
+ */
+public class Clear implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        Logger logger = LoggerFactory.getLogger(Clear.class);
+        collectionManager.getCollection().clear();
+        out.println("коллекция очищена\n");
+        logger.info("коллекция очщена");
+    }
+    public String getComandInfo() {
+        return "clear: очистить коллекцию\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Command.java">
+package com.example.commands;
+
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+
+/**
+ * Интерфейс для всех команд для комманд паттерна
+ *
+ */
+
+public interface Command {
+    void execute(String[] args, CollectionManager collectionManager, PrintWriter out);
+    String getComandInfo();
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/CountLessThanHealth.java">
+package com.example.commands;
+
+import com.example.exeptions.ArgExeption;
+import com.example.exeptions.InputExeption;
+import com.example.managers.CollectionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+import java.util.Set;
+/**
+ * Комманда для выведения всех элементов чье здоровье меньше заданного
+ *
+ */
+public class CountLessThanHealth implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        Logger logger = LoggerFactory.getLogger(CountLessThanHealth.class);
+        if (args.length > 1) {
+            throw new ArgExeption();
+            // System.out.println("нужен только 1 аргумент");
+        }
+
+        double hp;
+
+        try {
+            hp = Double.parseDouble(args[0]);
+        } catch (Exception e) {
+            throw new InputExeption();
+        }
+
+        int sh = 0;
+        Set <Integer> mapValues = collectionManager.getCollection().keySet();
+
+        for (var v : mapValues) {
+            if (collectionManager.getCollection().get(v).getHealth() < hp) {
+                sh++;
+            }
+        }
+        out.println("колво элементов:" + sh);
+        out.println("элементы посчитаны\n");
+        logger.info("элементы посчитаны");
+    }
+    public String getComandInfo() {
+        return "count_less_than_health health (double) : вывести количество элементов, "
+                + "значение поля health которых меньше заданного\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/ExecuteScriptFileName.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.exeptions.RecursExeption;
+import com.example.managers.CollectionManager;
+import com.example.managers.CommandManager;
+import com.example.managers.FileManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+/**
+ * Комманда для запуска скрипта с командами
+ *
+ */
+
+public class ExecuteScriptFileName implements Command {
+
+    public void execute(String[] args, CollectionManager collection, PrintWriter out) {
+        Logger logger = LoggerFactory.getLogger(ExecuteScriptFileName.class);
+        if (args.length > 1 || args.length == 0) {
+            throw  new ArgExeption();
+            // System.out.println("не правильный формат ввода");
+        }
+        String filename = args[0];
+
+        if (collection.scriptIf(filename)) {
+            throw new RecursExeption();
+        } else {
+            collection.scriptInsert(filename);
+        }
+
+        FileManager fileManager = new FileManager();
+
+        fileManager.setFilename(filename);
+        ArrayList<String> commands = null;
+
+        try {
+            commands = fileManager.commandRead();
+        } catch (FileNotFoundException e) {
+            out.println("имя файла неверно или файл не читаем");
+            logger.info("имя файла неверно или файл не читаем");
+        }
+
+        CommandManager commandManager = new CommandManager(collection);
+
+        if (commands != null) {
+            for (String i : commands) {
+                String[] newArgs = i.split(" ");
+                commandManager.newCommand(newArgs, out);
+            }
+            collection.scriptRemove(filename);
+        }
+        out.println("Скрипт выполнен\n");
+        logger.info("Скрипт выполнен");
+    }
+
+    public String getComandInfo() {
+        return "execute_script file_name (string) : считать и исполнить скрипт из указанного файла. " +
+                "В скрипте содержатся команды в таком же виде, в котором их вводит пользователь" +
+                " в интерактивном режиме.\n";
+
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Exit.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда для выхода из программы
+ *
+ */
+public class Exit implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        System.exit(0);
+    }
+    public String getComandInfo() {
+        return "exit : завершить программу (без сохранения в файл)\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/FilterGreaterThanChapter.java">
+package com.example.commands;
+
+import com.example.collection.Chapter;
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.exeptions.InputExeption;
+import com.example.managers.CollectionManager;
+import com.example.utils.Parser;
+
+import java.io.PrintWriter;
+import java.util.Set;
+/**
+ * Комманда для выведения всех элементов чей Chapter больше заданного
+ *
+ */
+public class FilterGreaterThanChapter implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length !=4) {
+            throw new ArgExeption();
+        }
+
+        Parser parser = new Parser();
+        Chapter chapter = null;
+        try {
+            chapter = parser.parseChapter(args);
+        } catch (Exception e) {
+            throw new InputExeption();
+        }
+
+        Set<Integer> mapValues = collectionManager.getCollection().keySet();
+
+        for (var v : mapValues) {
+            if (collectionManager.getCollection().get(v).getChapter().compareTo(chapter) > 0) {
+                out.println(collectionManager.getCollection().get(v));
+            }
+        }
+
+        out.println("все элементы с Chapter > заданного выведены\n");
+    }
+    public String getComandInfo() {
+        return "filter_greater_than_chapter chapter : вывести элементы, значение поля chapter которых больше заданного\n" +
+                "сравнение производится по полю marinesCount\n" +
+                "chapter вводится через пробел в следующем порядке:\n" +
+                "(string) name (string) parentLegion (long) marinesCount (string) world\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/FilterLessThanChapter.java">
+package com.example.commands;
+
+import com.example.collection.Chapter;
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.exeptions.InputExeption;
+import com.example.managers.CollectionManager;
+import com.example.utils.Parser;
+
+import java.io.PrintWriter;
+import java.util.Set;
+/**
+ * Комманда для выведения всех элементов чей Chapter меньше заданного
+ *
+ */
+public class FilterLessThanChapter implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length !=4) {
+            throw  new ArgExeption();
+            // System.out.println("неверное число аргументов");
+        }
+        Parser parser = new Parser();
+        Chapter chapter = null;
+        try {
+            chapter = parser.parseChapter(args);
+        } catch (Exception e) {
+            throw new InputExeption();
+        }
+        Set<Integer> mapValues = collectionManager.getCollection().keySet();
+        for (var v : mapValues) {
+            if (collectionManager.getCollection().get(v).getChapter().compareTo(chapter) < 0) {
+                out.println(collectionManager.getCollection().get(v));
+            }
+        }
+
+        out.println("все элементы с Chapter < заданного выведены\n");
+    }
+    public String getComandInfo() {
+        return "filter_greater_than_chapter chapter : вывести элементы, значение поля chapter которых меньше заданного\n" +
+                "сравнение производится по полю marinesCount\n" +
+                "chapter вводится через пробел в следующем порядке:\n" +
+                "(string) name (string) parentLegion (long) marinesCount (string) world\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Help.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Set;
+/**
+ * Комманда для выведения справки по всем командам
+ *
+ */
+public class Help implements Command {
+    private HashMap<String, Command> commandHashMap;
+
+    public Help(HashMap<String, Command> newCommandHashMap) {
+        commandHashMap = newCommandHashMap;
+    }
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        Set<String> keys = commandHashMap.keySet();
+
+        for(String i: keys) {
+            out.println(commandHashMap.get(i).getComandInfo());
+        }
+
+        out.println("все команды выведены\n");
+    }
+    public String getComandInfo() {
+        return "help : вывести справку по доступным командам\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/History.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import static java.lang.Math.max;
+/**
+ * Комманда для выведения последних 14 команд
+ *
+ */
+public class History implements Command {
+    ArrayList<String> history;
+    public History(ArrayList<String> commandHistory) {
+        history = commandHistory;
+    }
+
+    @Override
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        for (int i = max(history.toArray().length - 14, 0); i < history.toArray().length; i++) {
+            out.println(history.get(i));
+        }
+
+        out.println("история команд выведена\n");
+    }
+
+    @Override
+    public String getComandInfo() {
+        return "history : вывести последние 14 команд (без их аргументов)\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Info.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда для выведения информации о коллекции
+ *
+ */
+public class Info implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        out.println("Тип коллекции: " + collectionManager.getCollection().getClass().getName() +
+                " время создания "  + collectionManager.getTime() +
+                " колличество элементов " + collectionManager.getCollection().size());
+
+        out.println("информация о коллекции выведена\n");
+    }
+    public String getComandInfo() {
+        return "info : вывести в стандартный поток вывода информацию" +
+                " о коллекции (тип, дата инициализации, количество элементов и т.д.)\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/InsertNull.java">
+package com.example.commands;
+
+import com.example.collection.SpaceMarine;
+import com.example.exeptions.ArgExeption;
+import com.example.managers.CollectionManager;
+import com.example.utils.Parser;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда для добавления элемента в коллекцию
+ *
+ */
+public class InsertNull implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length != 12) {
+            throw new ArgExeption();
+            //System.out.println("неверное число аргументов " + args.length);
+        }
+        Parser parser = new Parser();
+        SpaceMarine spacemar = null;
+        try {
+            spacemar = parser.parsSpaceMarine(args);
+        } catch (Exception e) {
+            out.println("ошибка ввода данных");
+            return;
+        }
+        collectionManager.inputElement(spacemar);
+
+        out.println("элемент добавлен\n");
+    }
+    public String getComandInfo() {
+        // insert 500 Ultramarine 12.5 7 150 ASSAULT BOLTGUN CHAIN_SWORD Ultramar Guilliman 500 Macragge
+        return "insert {element} — добавить новый элемент с указанным ключом.\n" +
+                "Аргументы необходимо вводить через пробел в следующем порядке:\n" +
+                "1. (int) id — идентификатор\n" +
+                "2. (string) name — имя\n" +
+                "3. (float) cordX — координата X\n" +
+                "4. (long) cordY — координата Y\n" +
+                "5. (float) health — уровень здоровья\n" +
+                "\n" +
+                "6. AstartesCategory — категория (одно из значений):\n" +
+                "   ASSAULT, TACTICAL, HELIX\n" +
+                "\n" +
+                "7. Weapon — основное оружие (одно из значений):\n" +
+                "   BOLTGUN, MELTAGUN, FLAMER, HEAVY_FLAMER\n" +
+                "\n" +
+                "8. MeleeWeapon — оружие ближнего боя (одно из значений):\n" +
+                "   CHAIN_SWORD, POWER_SWORD, CHAIN_AXE, MANREAPER, POWER_FIST\n" +
+                "\n" +
+                "9. (string) name_legion — название легиона\n" +
+                "10. (string) commander_legion — имя командира легиона\n" +
+                "11. (int) marinesCount — количество космодесантников\n" +
+                "12. (string) planetName — название планеты\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/RemoveKeyNull.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда для удаления элемента из коллекции по ключу
+ *
+ */
+public class RemoveKeyNull implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length !=1) {
+            throw new ArgExeption();
+            // System.out.println("неверное число аргументов");
+        }
+        int id = Integer.parseInt(args[0]);
+        collectionManager.removeElement(id);
+
+        out.println("элемент удален\n");
+    }
+    public String getComandInfo() {
+        return "remove_key key (int) : удалить элемент из коллекции по его ключу\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/RemoveLowerKeyNull.java">
+package com.example.commands;
+
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.exeptions.InputExeption;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+/**
+ * Комманда для удаления всеъ элементов чей улюч меньше заданного
+ *
+ */
+public class RemoveLowerKeyNull implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length > 1) {
+            throw new ArgExeption();
+        }
+        int id;
+        try {
+            id = Integer.parseInt(args[0]);
+        } catch (Exception e) {
+            throw new InputExeption();
+        }
+
+        List<Integer> removeList = new ArrayList<>();
+
+        Set<Integer> mapValues = collectionManager.getCollection().keySet();
+        for (var v : mapValues) {
+            if (v < id) {
+                removeList.add(v);
+            }
+        }
+
+        for (var k: removeList) {
+            collectionManager.removeElement(k);
+        }
+
+        out.println("все элементы чей ключ < заданного удалены\n");
+    }
+    public String getComandInfo() {
+        return "remove_lower_key key (int) : удалить из коллекции все элементы, " +
+                "ключ которых меньше, чем заданный\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/ReplaceIfLoweNull.java">
+package com.example.commands;
+
+import com.example.collection.SpaceMarine;
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.managers.CollectionManager;
+import com.example.utils.Parser;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда замены элемента если его здоровье меньше чем текущего
+ *
+ */
+public class ReplaceIfLoweNull implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length != 12) {
+            throw new ArgExeption();
+            // System.out.println("Неверный ввод данных");
+        }
+        Parser parser = new Parser();
+
+        SpaceMarine spacemar;
+        try {
+            spacemar = parser.parsSpaceMarine(args);
+        } catch (Exception e) {
+            out.println("ошибка ввода данных");
+            return;
+        }
+        if (collectionManager.getCollection().get(spacemar.getId()).compareTo(spacemar) > 0) {
+            collectionManager.swapElement(spacemar, spacemar.getId());
+            out.println("элемент обновлен\n");
+        } else {
+            out.println("элемент не обновлен\n");
+        }
+    }
+    public String getComandInfo() {
+        return "replace_if_lower key {element} : заменить значение по ключу, если новое значение меньше старого\n" +
+                "сравнение производится по полю health\n" +
+                "элемент необходимо передать в том же формате, что и в команде insert\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Save.java">
+package com.example.commands;
+
+import com.example.collection.SpaceMarine;
+import com.example.commands.Command;
+import com.example.exeptions.ArgExeption;
+import com.example.exeptions.RecordExeption;
+import com.example.managers.CollectionManager;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Set;
+/**
+ * Комманда для сохранения всех элементов коллекции в файл
+ *
+ */
+public class Save implements Command {
+    @Override
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length == 1) {
+            String filename = args[0];
+
+            HashMap <Integer, SpaceMarine> spaceMarineHashMap = collectionManager.getCollection();
+
+            Set<Integer> keys = spaceMarineHashMap.keySet();
+
+            try(BufferedWriter bufwriter = new BufferedWriter(new FileWriter(filename))) {
+
+                for (int i : keys) {
+                    SpaceMarine spaceMarine = spaceMarineHashMap.get(i);
+
+                    String str = spaceMarine.getName() +
+                            ";" + spaceMarine.getCoordinates().getX() + ";" + spaceMarine.getCoordinates().getY() +
+                            ";" + spaceMarine.getHealth() + ";" +
+                            spaceMarine.getCategory() + ";" + spaceMarine.getWeaponType() + ";" +
+                            spaceMarine.getMeleeWeapon() + ";" + spaceMarine.getChapter().getName() + ";" +
+                            spaceMarine.getChapter().getParentLegion() + ";" + spaceMarine.getChapter().getMarinesCount() + ";" +
+                            spaceMarine.getChapter().getWorld() + "\n";
+
+                    bufwriter.write(str);
+                    bufwriter.flush();
+
+                }
+                System.out.println(System.getProperty("user.dir"));
+                System.out.println(new File(filename).getAbsolutePath());
+
+                System.out.println("коллекция сохранена\n");
+            } catch(Exception e) {
+                throw new RecordExeption();
+            }
+
+
+
+        } else {
+            throw new ArgExeption();
+        }
+    }
+
+    @Override
+    public String getComandInfo() {
+        return "save file_name (string): сохранить коллекцию в файл, необходимо передать название\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/Show.java">
+package com.example.commands;
+
+import com.example.collection.SpaceMarine;
+import com.example.managers.CollectionManager;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+
+/**
+ * Комманда для выведения всех элементов коллекции
+ *
+ */
+public class Show implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        Collection<SpaceMarine> mapValues = collectionManager.getCollection().values();
+
+        ArrayList<SpaceMarine> nmarines =  mapValues.stream()
+                .sorted(Comparator.comparing(marine -> marine.getChapter().getWorld()))
+                .collect(Collectors.toCollection(() -> new ArrayList<>()));
+
+
+        for (var v: nmarines) {
+            out.println(v);
+        }
+
+        out.println("элементы коллекции выведены\n");
+    }
+
+    public  String getComandInfo() {
+        return "show : вывести в стандартный поток вывода все элементы" +
+                " коллекции в строковом представлении\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/commands/UpdateId.java">
+package com.example.commands;
+
+import com.example.collection.SpaceMarine;
+import com.example.exeptions.ArgExeption;
+import com.example.managers.CollectionManager;
+import com.example.utils.Parser;
+
+import java.io.PrintWriter;
+
+/**
+ * Комманда для обновления элемента на новый по заданному ID
+ *
+ */
+public class UpdateId implements Command {
+    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        if (args.length != 12) {
+            throw new ArgExeption();
+        }
+        Parser parser = new Parser();
+        SpaceMarine spacemar;
+        try {
+            spacemar = parser.parsSpaceMarine(args);
+        } catch (Exception e) {
+            out.println("ошибка ввода данных");
+            return;
+        }
+        collectionManager.swapElement(spacemar, spacemar.getId());
+
+        out.println("элемент обновлен\n");
+    }
+    public String getComandInfo() {
+        return "update id {element} : обновить значение элемента коллекции," +
+                " id которого равен заданному передать элемент необходимо в формате" +
+                "аналогичном команде insert\n";
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/ArgExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн неверного числа аргументов
+ *
+ */
+public class ArgExeption extends RuntimeException {
+    public ArgExeption() {
+        System.out.println("Ошибка: неверное число аргументов");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/CommandExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн для случаев когда команда по каким то причинам не выполнилась
+ *
+ */
+public class CommandExeption extends RuntimeException {
+    public CommandExeption() {
+
+        System.out.println("Ошибка: команда не выполнена");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/FileExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда не удалось считать что то из файла
+ *
+ */
+public class FileExeption extends RuntimeException {
+    public FileExeption(String message) {
+        super("Ошибка, неверный формат ввода: " + message);
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/IdElemExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда ID занят и элемент не удалось вставить
+ *
+ */
+public class IdElemExeption extends RuntimeException {
+    public IdElemExeption() {
+        System.out.println("Ошибка: ID уже занят");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/InputExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда неверный тип данных ввода
+ *
+ */
+public class InputExeption extends RuntimeException {
+    public InputExeption() {
+        System.out.println("Ошибка: Неверный тип данных ввода");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/NotElemExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда нет элемента с таким ID
+ *
+ */
+public class NotElemExeption extends RuntimeException {
+    public NotElemExeption() {
+        System.out.println("Ошибка: нет элемента с таким ID");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/ReadExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда файл вообще не удалось прочитать
+ *
+ */
+public class ReadExeption extends RuntimeException {
+    public ReadExeption(String message) {
+        System.out.println("Ошибка: чтение файла не удалось " + message);
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/RecordExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда не получилось записать данные в файл
+ *
+ */
+public class RecordExeption extends RuntimeException {
+    public RecordExeption() {
+        System.out.println("Ошибка: запись не удалась");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/exeptions/RecursExeption.java">
+package com.example.exeptions;
+/**
+ * Эксепшн когда в скрипте образовалась бесконечная рекурсия
+ *
+ */
+public class RecursExeption extends RuntimeException {
+    public RecursExeption() {
+        System.out.println("Ошибка: бесконечная рекурсия чтения скриптов");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/managers/CollectionManager.java">
+package com.example.managers;
+
+import com.example.collection.SpaceMarine;
+import com.example.exeptions.IdElemExeption;
+import com.example.exeptions.NotElemExeption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+/**
+ * Ключевой класс приложения отвечающий за работу с коллекцией
+ * <p>
+ *  Функции класса
+ *  <ul>
+ *      <li> Хранение коллекции спейсмаринов </li>
+ *      <li> Менеджмент элементво коллекции </li>
+ *      <li> проверка адекватности скриптов </li>
+ * </ul>
+ */
+public class CollectionManager {
+    Logger logger = LoggerFactory.getLogger(CollectionManager.class);
+    private HashMap<Integer, SpaceMarine> spaceMarineHashMap;
+    private LocalDateTime dateInit;
+
+    public CollectionManager(HashMap<Integer, SpaceMarine> newspaceMarineHashMap) {
+        spaceMarineHashMap = newspaceMarineHashMap;
+        dateInit = LocalDateTime.now();
+    }
+
+    /**
+     * Метод добавления элемента
+     */
+    public void inputElement(SpaceMarine newSpaceMarine) {
+        if (spaceMarineHashMap.containsKey(newSpaceMarine.getId())) {
+            throw new IdElemExeption();
+        } else {
+            logger.info("элемент добавлен");
+            spaceMarineHashMap.put(newSpaceMarine.getId(), newSpaceMarine);
+        }
+    }
+    /**
+     * Метод замены элемента
+     */
+    public void swapElement(SpaceMarine newSpaceMarine, int id) {
+        if (spaceMarineHashMap.containsKey(newSpaceMarine.getId())) {
+            logger.info("элемент заменен");
+            spaceMarineHashMap.put(id, newSpaceMarine);
+        } else {
+            throw new NotElemExeption();
+        }
+    }
+    /**
+     * Метод удаления элемента
+     */
+    public void removeElement(int id) {
+        if (spaceMarineHashMap.containsKey(id)) {
+            logger.info("элемент удален");
+            spaceMarineHashMap.remove(id);
+        } else {
+            System.out.println("нет элемента с таким ID");
+        }
+    }
+
+    public HashMap<Integer, SpaceMarine> getCollection() {
+        return spaceMarineHashMap;
+    }
+
+    public LocalDateTime getTime() {
+        return dateInit;
+    }
+
+    ArrayList<String> scriptPul = new ArrayList<String>();
+
+    /**
+     * Метод добавления скрипта
+     */
+    public void scriptInsert(String a) {
+        scriptPul.add(a);
+    }
+    /**
+     * Метод удаления элемента
+     */
+    public void scriptRemove(String a) {
+        scriptPul.remove(a);
+    }
+    /**
+     * Метод проверяющий содержится ли скрипт в текущем скриптпуле
+     */
+    public Boolean scriptIf(String a) {
+        if (scriptPul.contains(a)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/managers/CommandManager.java">
+package com.example.managers;
+
+import com.example.commands.*;
+
+import com.example.exeptions.ArgExeption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+/**
+ * Ключевой класс приложения отвечающий за работу с командами
+ * <p>
+ *  Функции класса
+ *  <ul>
+ *      <li> Хранение списка команд </li>
+ *      <li> Валидирование и вызов нужных команд </li>
+ *      <li> Обработка ошибок </li>
+ *      <li> Хранение истории команд </li>
+ * </ul>
+ */
+public class CommandManager {
+    Logger logger = LoggerFactory.getLogger(CommandManager.class);
+    public HashMap<String, Command> commandHashMap = new HashMap<>();
+    public CollectionManager collectionManager;
+    ArrayList<String> commandHistory = new ArrayList<String>();
+
+    public CommandManager(CollectionManager newCollectionManager) {
+        collectionManager = newCollectionManager;
+        commandHashMap.put("help", new Help(commandHashMap));
+        commandHashMap.put("info", new Info());
+        commandHashMap.put("history", new History(commandHistory));
+        commandHashMap.put("exit", new Exit());
+        commandHashMap.put("clear", new Clear());
+        commandHashMap.put("show", new Show());
+        commandHashMap.put("insert", new InsertNull());
+        commandHashMap.put("update", new UpdateId());
+        commandHashMap.put("remove_key", new RemoveKeyNull());
+        commandHashMap.put("execute_script", new ExecuteScriptFileName());
+        commandHashMap.put("save", new Save());
+        commandHashMap.put("replace_if_lowe", new ReplaceIfLoweNull());
+        commandHashMap.put("remove_lower_key", new RemoveLowerKeyNull());
+        commandHashMap.put("count_less_than_health", new CountLessThanHealth());
+        commandHashMap.put("filter_less_than_chapter", new FilterLessThanChapter());
+        commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter());
+    }
+
+    /**
+     * Метод непосредственно обрабатывающий полученную команду
+     * <p>
+     *  Функции класса
+     *  <ul>
+     *      <li> Получение строки с командой и ее аргументами </li>
+     *      <li> выделение команды и аргументов </li>
+     *      <li> Валидирование команды  </li>
+     *      <li> Вызов полученной команды </li>
+     *      <li> Добавление вызванной команды в историю </li>
+     * </ul>
+     */
+    public void newCommand(String[] args, PrintWriter out) {
+        PrintStream old =System.out;
+
+        String com = args[0];
+
+        String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+
+        if (commandHashMap.containsKey(com)) {
+            try {
+                logger.info("команда выполняется");
+
+                commandHashMap.get(com).execute(commandArgs, collectionManager, out);
+            } catch (ArgExeption e) {
+                logger.info("ошибка, команда не выполнена");
+                out.println("Ошибка, команда не выполнена");
+            }
+            commandHistory.add(com);
+        } else {
+            logger.info("неизвестная команда");
+            out.println("неизвестная команда");
+        }
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/managers/FileManager.java">
+package com.example.managers;
+
+import com.example.collection.SpaceMarine;
+import com.example.exeptions.ReadExeption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.example.utils.Parser;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+/**
+ * Класс для работы с файломи
+ * <p>
+ *  Функции класса
+ *  <ul>
+ *      <li> Чтение данных из файла
+ *      <li> Собирание данных из файлов в коллекцию
+ *      <li> чтение команд из файла
+ * </ul>
+ */
+public class FileManager {
+    Logger logger = LoggerFactory.getLogger(FileManager.class);
+    private static int id = 1;
+    public String filename;
+    Parser parser = new Parser();
+
+    public void setFilename(String name) {
+        filename = name;
+    }
+
+
+    /**
+     * Читатель изначальной коллекции
+     *  <ol>
+     *      <li> читаем файл с данными </li>
+     *      <li> собираем их в спейсмаринов </li>
+     *      <li> собираем спейсмаринов в мапу </li>
+     *      <li> возвращаем мапу спейсмаринов </li>
+     *  </ol>
+     */
+    public HashMap<Integer, SpaceMarine> fileRead() throws FileNotFoundException {
+        HashMap <Integer, SpaceMarine> spaceMarineHashMap = new HashMap<>();
+
+        try (InputStreamReader bufreader = new InputStreamReader(new FileInputStream(filename))) {
+            BufferedReader reader = new BufferedReader(bufreader);
+
+            String input;
+
+            while (true) {
+                input = reader.readLine();
+
+                if (input == null) {
+                    break;
+                }
+                SpaceMarine newmarine;
+
+                try {
+                    newmarine = parser.parseCSV(input);
+                } catch (Exception e) {
+                    System.out.println("Считать строку не удалось");
+                    continue;
+                }
+
+                spaceMarineHashMap.put(newmarine.getId(), newmarine);
+                id++;
+            }
+        } catch(IOException exep) {
+            throw new ReadExeption(exep.getMessage());
+            // System.out.println("с файлом что то не то " + exep.getMessage());
+        }
+
+        return spaceMarineHashMap;
+    }
+
+    /**
+     * Читатель команд
+     *  <ol>
+     *      <li> читаем файл с командами </li>
+     *      <li> закидываем команду в массив </li>
+     *      <li> возвращаем массив команд </li>
+     *  </ol>
+     */
+
+    public ArrayList<String> commandRead() throws FileNotFoundException {
+        ArrayList<String> args = new ArrayList<>();
+        try (InputStreamReader bufreader = new InputStreamReader(new FileInputStream(filename))) {
+            BufferedReader reader = new BufferedReader(bufreader);
+
+            String input;
+
+
+            while(true) {
+                input = reader.readLine();
+
+                if (input == null) {
+                    break;
+                }
+                args.add(input);
+            }
+        } catch(IOException exep) {
+            System.out.println("с файлом что то не то " + exep.getMessage());
+        }
+
+        return args;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/managers/InputManager.java">
+package com.example.managers;
+
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.logging.Logger;
+
+public class InputManager {
+    Logger logger = Logger.getLogger(String.valueOf(InputManager.class));
+    Terminal terminal;
+    LineReader reader;
+    public InputManager() {
+        try {
+            terminal = TerminalBuilder.builder().system(true).build();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+
+        reader = LineReaderBuilder.builder().terminal(terminal).build();
+    }
+    public void InputTerm(CommandManager curCommandManager) throws IOException {
+        if (System.in.available() > 0) {
+            String TerInput = null;
+            try {
+                TerInput = reader.readLine();
+            } catch (Exception e) {
+                System.out.println("ввод завершен");
+            }
+
+            if (TerInput == null) {
+                return;
+            }
+
+            TerInput = TerInput.trim();
+
+            String[] TerArgs = TerInput.split(" ");
+
+            ByteArrayOutputStream bufStr = new ByteArrayOutputStream();
+            PrintWriter out = new PrintWriter(bufStr);
+
+            if (TerArgs[0].equals("exit") || TerArgs[0].equals("save")) {
+                logger.info("команда выполнена");
+                curCommandManager.newCommand(TerArgs, out);
+                System.out.println(bufStr.toString());
+            } else {
+                logger.info("команда не выполнена");
+            }
+        }
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/managers/ServerEngine.java">
+package com.example.managers;
+
+import com.example.managers.InputManager;
+import com.example.utils.Deserializer;
+import com.example.utils.InputPack;
+import com.example.utils.OutputPack;
+import com.example.utils.PackFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+public class ServerEngine {
+    Logger logger = LoggerFactory.getLogger(ServerEngine.class);
+    CommandManager commandManager;
+    ServerManager servChannel;
+    InputManager inputManager;
+    PackFactory packFactory;
+    Deserializer deserializer;
+    public ServerEngine(CommandManager newCommandManager, ServerManager newServerManager, InputManager newInputManager) {
+        commandManager = newCommandManager;
+        servChannel = newServerManager;
+        inputManager = newInputManager;
+        packFactory = new PackFactory();
+        deserializer = new Deserializer();
+    }
+
+    public void run() throws IOException {
+        logger.info("Сервер запущен");
+        while (true) {
+            try {
+                InputPack pack;
+                pack = servChannel.recive();
+
+                if (pack.client != null) {
+                    logger.info("запрос получен");
+                    processing(pack);
+                }
+
+                inputManager.InputTerm(commandManager);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void processing(InputPack pack) throws IOException {
+        String[] parts = deserializer.deserialize(pack);
+
+        if (parts == null) {
+            return;
+        }
+
+        OutputPack outPack = packFactory.BuildPack(pack.client, commandManager, parts);
+
+        servChannel.send(outPack);
+
+        logger.info("Ответ отправлен");
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/managers/ServerManager.java">
+package com.example.managers;
+
+import com.example.utils.InputPack;
+import com.example.utils.OutputPack;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+
+public class ServerManager {
+    DatagramChannel servChannel;
+    ByteBuffer buffer;
+
+    public ServerManager( int port) throws IOException {
+        servChannel = DatagramChannel.open();
+        servChannel.bind(new InetSocketAddress(port));
+        servChannel.configureBlocking(false);
+        buffer = ByteBuffer.allocate(16384);
+    }
+
+    public InputPack recive() throws IOException {
+        buffer.clear();
+        SocketAddress client = servChannel.receive(buffer);
+
+        if (client == null) {
+            InputPack retPack1 = new InputPack(null , null);
+            return retPack1;
+        }
+
+        buffer.flip();
+
+        byte[] data = new byte[buffer.limit()];
+        buffer.get(data);
+
+        InputPack retPack = new InputPack(client, data);
+        return retPack;
+    }
+
+    public void send(OutputPack pack) throws IOException {
+        servChannel.send(pack.buf, pack.client);
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/Deserializer.java">
+package com.example.utils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.example.utils.Wrapper;
+
+import java.io.IOException;
+
+public class Deserializer {
+    Logger logger = LoggerFactory.getLogger(Deserializer.class);
+    ObjectMapper mapper;
+    WrapperUtils utils;
+    public Deserializer() {
+        mapper = new ObjectMapper();
+        utils = new WrapperUtils(31);
+    }
+
+    public String[] deserialize(InputPack pack) {
+        String input = null;
+
+        Wrapper prvvod = null;
+
+        try {
+            prvvod = mapper.readValue(pack.data, Wrapper.class);
+        } catch (IOException e) {
+            return null;
+        }
+
+        input  = prvvod.getZapr();
+        int sum = utils.getControlSum(input);
+        int hash = utils.makeHash(input);
+
+        if (prvvod.getHash() != hash) {
+            logger.info("hash не совпал");
+        }
+        if (prvvod.getControlSum() != sum) {
+            logger.info("контрольная сумма не совпала");
+        }
+
+        if (input == null) {
+            return null;
+        }
+
+        String[] parts = input.split(" ");
+
+        return parts;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/InputPack.java">
+package com.example.utils;
+
+import java.net.SocketAddress;
+
+public class InputPack {
+    public SocketAddress client;
+    public byte[] data;
+    public InputPack(SocketAddress inpAdres, byte[] inData) {
+        client = inpAdres;
+        data = inData;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/OutputPack.java">
+package com.example.utils;
+
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+
+public class OutputPack {
+    public ByteBuffer buf;
+    public SocketAddress client;
+
+    public OutputPack(ByteBuffer inByte, SocketAddress inClient) {
+        buf = inByte;
+        client = inClient;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/PackFactory.java">
+package com.example.utils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.managers.CommandManager;
+import com.example.utils.OutputPack;
+import com.example.utils.Wrapper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+
+public class PackFactory {
+    ObjectMapper mapper;
+    WrapperUtils utils;
+    public PackFactory() {
+        mapper = new ObjectMapper();
+        utils = new WrapperUtils(31);
+    }
+
+    public OutputPack BuildPack(SocketAddress client, CommandManager curCommandManager, String[] parts) {
+        ByteArrayOutputStream bufStream = new ByteArrayOutputStream();
+        PrintWriter out = new PrintWriter(bufStream, true);
+
+        try {
+            if (!parts[0].equals("exit") && !parts[0].equals("save")) {
+                curCommandManager.newCommand(parts, out);
+            }
+        } catch (Exception e) {
+            // ans = ("Ошибка, команда не выполнена");
+        } finally {
+            // System.setOut(old);
+        }
+
+        out.flush();
+        String prStr = bufStream.toString();
+
+        Wrapper res = new Wrapper();
+        int sum = utils.getControlSum(prStr);
+        int hash = utils.makeHash(prStr);
+        res.setZapr(prStr, sum, hash);
+
+        byte[] jsonByte;
+
+        try {
+            jsonByte = mapper.writeValueAsBytes(res);
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonByte = "ошибка сериализации".getBytes();
+        }
+
+        ByteBuffer otvet = ByteBuffer.wrap(jsonByte);
+
+        OutputPack outPack = new OutputPack(otvet, client);
+
+        // System.setOut(old);
+
+        return outPack;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/Parser.java">
+package com.example.utils;
+
+import com.example.collection.*;
+import com.example.exeptions.FileExeption;
+import com.example.exeptions.InputExeption;
+
+import java.time.LocalDateTime;
+/**
+ * Класс по сути билдер более сложных штук
+ */
+public class Parser {
+    private static int id = 1;
+    /**
+     * Начало парсера
+     *  <ol>
+     *      <li> получаем массив с данными для SpaceMarine </li>
+     *      <li> считываем и валидируем их </li>
+     *      <li> возвращаем собранный элемент </li>
+     *  </ol>
+     */
+    public SpaceMarine parsSpaceMarine(String[] args) {
+        try {
+            int nid = Integer.parseInt(args[0]);
+            String name = args[1];
+            float x = Float.parseFloat(args[2]);
+            Long y = (long) Integer.parseInt(args[3]);
+
+            Coordinates cord = new Coordinates(x, y);
+
+            LocalDateTime ndate = LocalDateTime.now();
+
+            double health = (double) Float.parseFloat(args[4]);
+
+            AstartesCategory nc = AstartesCategory.valueOf(args[5]);
+
+            Weapon nweapon = Weapon.valueOf(args[6]);
+
+            MeleeWeapon nmeleeweapon = MeleeWeapon.valueOf(args[7]);
+
+            String nchaptername = args[8];
+            String nparentlegion = args[9];
+
+            Long marinescount = (long) Integer.parseInt(args[10]);
+
+            String world = args[11];
+
+            Chapter marinchapt = new Chapter(nchaptername, nparentlegion, marinescount, world);
+
+            SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt);
+            return spacemar;
+        } catch (Exception e) {
+            throw new InputExeption();
+        }
+    }
+    /**
+     * Начало парсера
+     *  <ol>
+     *      <li> получаем массив с данными для Chapter </li>
+     *      <li> считываем и валидируем их </li>
+     *      <li> возвращаем собранный элемент </li>
+     *  </ol>
+     */
+    public Chapter parseChapter(String[] args) {
+        try {
+            String s1 = args[0];
+            String s2 = args[1];
+            Long chislen = (long) Integer.parseInt(args[2]);
+            String s3 = args[3];
+
+            Chapter nchapt = new Chapter(s1, s2, chislen, s3);
+
+            return nchapt;
+
+        } catch(Exception e) {
+            throw new InputExeption();
+        }
+    }
+
+    public SpaceMarine parseCSV(String str) {
+        try {
+            String[] elem = str.split(";");
+
+            if (elem.length != 11) {
+                throw new FileExeption("неверное число аргументов");
+            }
+
+            for (int i=0; i < elem.length; i++) {
+                elem[i] = elem[i].trim();
+            }
+
+            int nid = id;
+            String name = elem[0];
+
+            if (name.isEmpty()) {
+                throw new FileExeption("имя не может быть пустым");
+            }
+
+            float x = Float.parseFloat(elem[1]);
+            Long y = (long) Integer.parseInt(elem[2]);
+
+            Coordinates cord = new Coordinates(x, y);
+
+            LocalDateTime ndate = LocalDateTime.now();
+
+            double health = (double) Float.parseFloat(elem[3]);
+
+            if (Double.isNaN(health) || health < 0) {
+                throw new FileExeption("здоровье не может быть NaN или < 0");
+            }
+
+            AstartesCategory nc = AstartesCategory.valueOf(elem[4].toUpperCase());
+
+            Weapon nweapon = Weapon.valueOf(elem[5].toUpperCase());
+
+            MeleeWeapon nmeleeweapon = MeleeWeapon.valueOf(elem[6].toUpperCase());
+
+            String nchaptername = elem[7];
+            String nparentlegion = elem[8];
+
+
+            Long marinescount = (long) Integer.parseInt(elem[9]);
+
+            if (marinescount <= 0 || marinescount > 1000) {
+                throw new FileExeption("неверныая численность");
+            }
+
+            String world = elem[10];
+
+            Chapter marinchapt = new Chapter(nchaptername, nparentlegion, marinescount, world);
+
+            SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt);
+
+            id++;
+            return spacemar;
+        } catch (Exception e) {
+            throw new InputExeption();
+        }
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/Wrapper.java">
+package com.example.utils;
+
+public class Wrapper {
+    private String zapr = "";
+    private long otpravTime;
+    private int controlSum;
+    private int hash;
+
+    public Wrapper() {
+        otpravTime = System.currentTimeMillis();
+    }
+
+    public void setZapr(String nzapr, int newcontrolsum, int newhash) {
+        zapr = nzapr;
+        controlSum = newcontrolsum;
+        hash = newhash;
+    }
+
+    public String getZapr() {
+        return zapr;
+    }
+    public int getControlSum() {
+        return controlSum;
+    }
+
+    public int getHash() {
+        return hash;
+    }
+
+    public long getOtpravTime() {
+        return otpravTime;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/utils/WrapperUtils.java">
+package com.example.utils;
+
+public class WrapperUtils {
+    static int mod = 16384;
+    int prost;
+    public WrapperUtils(int nprost){
+        prost = nprost;
+    }
+
+    public int getControlSum(String mes) {
+        int sum = 0;
+        for (int i=0; i < mes.length(); i++) {
+            int simvcode = mes.charAt(i);
+            sum = sum + simvcode;
+            sum = sum % mod;
+        }
+
+        return sum;
+    }
+
+    public int makeHash(String mes) {
+        int hash = 0;
+        for (int i=0; i < mes.length(); i++) {
+            int simvcode = mes.charAt(i);
+            hash = hash * prost + simvcode;
+            hash = hash % mod;
+        }
+
+        return hash;
+    }
+}
+</file>
+
+<file path="Server/src/main/java/com/example/logback.xml">
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%level] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
+</file>
+
+<file path="Server/src/main/java/com/example/Main.java">
+package com.example;
+
+import com.example.collection.SpaceMarine;
+import com.example.managers.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+/**
+ * Главный класс приложения отвечающий за запуск работы с коллекциями
+ * <p>
+ *  Функции класса
+ *  <ul>
+ *      <li> Чтение коллекции с помощью файл менеджера </li>
+ *      <li> Создание коллекшн менеджера и запуск работы с коллекцией </li>
+ *      <li> Обработка пользовательских комманд </li>
+ *      <li> Обработка некоторых ошибок </li>
+ * </ul>
+ */
+public class Main {
+    /**
+     * Начало программы
+     *  <ol>
+     *      <li> Получаем имя файла </li>
+     *      <li> Считываем коллекцию </li>
+     *      <li> Создаем коллекшн менеджер и команд менеджер </li>
+     *      <li> Запускаем режим интерактивной работы с коллекцией </li>
+     *  </ol>
+     */
+    public static void main(String[] args) throws IOException {
+        Logger logger = LoggerFactory.getLogger(Main.class);
+        String filename = "data.csv";
+
+        FileManager fileManager = new FileManager();
+
+        fileManager.setFilename(filename);
+
+        HashMap <Integer, SpaceMarine> newCollection = new HashMap<>();
+
+        try {
+            newCollection = fileManager.fileRead();
+        } catch (Exception e) {
+            logger.info("не удалось прочитать файл");
+        }
+
+        CollectionManager collectionManager = new CollectionManager(newCollection);
+
+        CommandManager curCommandManager = new CommandManager(collectionManager);
+
+        ServerManager servChannel = new ServerManager(12345);
+
+        InputManager inputManager = new InputManager();
+
+        ServerEngine servEng = new ServerEngine(curCommandManager, servChannel, inputManager);
+
+        servEng.run();
+    }
+}
+</file>
+
+<file path="Server/pom.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>lab6maven</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>Server</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version> <!-- Use latest version -->
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.21.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>3.0.0.M1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.21.3</version>
+        </dependency>
+    </dependencies>
+
+
+
+
+
+</project>
+</file>
+
+<file path=".gitignore">
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.kotlin
+
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+</file>
+
+<file path="8800">
+Titus;12.5;34;95.30000305175781;ASSAULT;BOLTGUN;CHAIN_SWORD;Ultramarines;Roboute Guilliman;1000;Macragge
+Cassius;5.2;11;88.0;TACTICAL;MELTAGUN;POWER_SWORD;Ultramarines;Roboute Guilliman;950;Talassar
+Ragnar;22.1;9;120.5;ASSAULT;FLAMER;CHAIN_AXE;SpaceWolves;Leman Russ;800;Fenris
+Azrael;7.7;45;99.9000015258789;TACTICAL;HEAVY_FLAMER;POWER_SWORD;DarkAngels;Lion ElJonson;700;TheRock
+Dante;18.4;27;110.19999694824219;ASSAULT;MELTAGUN;CHAIN_SWORD;BloodAngels;Sanguinius;600;Baal
+Honsou;3.3;14;70.0;TACTICAL;BOLTGUN;CHAIN_SWORD;IronWarriors;Perturabo;500;Medrengard
+Shrike;9.1;21;85.5999984741211;ASSAULT;FLAMER;CHAIN_SWORD;RavenGuard;Corvus Corax;650;Deliverance
+Logan;13.6;8;130.3000030517578;HELIX;HEAVY_FLAMER;POWER_FIST;SpaceWolves;Leman Russ;900;Fenris
+Aboba;6.9;32;140.6999969482422;HELIX;MELTAGUN;MANREAPER;BloodAngels;Sanguinius;400;Baal
+</file>
+
+<file path="data.csv">
+Titus;12.5;34;95.3;ASSAULT;BOLTGUN;CHAIN_SWORD;Ultramarines;Roboute Guilliman;1000;Macragge
+Cassius;5.2;11;88.0;TACTICAL;MELTAGUN;POWER_SWORD;Ultramarines;Roboute Guilliman;950;Talassar
+Ragnar;22.1;9;120.5;ASSAULT;FLAMER;CHAIN_AXE;SpaceWolves;Leman Russ;800;Fenris
+Azrael;7.7;45;99.9;TACTICAL;HEAVY_FLAMER;POWER_SWORD;DarkAngels;Lion ElJonson;700;TheRock
+Dante;18.4;27;110.2;ASSAULT;MELTAGUN;CHAIN_SWORD;BloodAngels;Sanguinius;600;Baal
+Honsou;3.3;14;70.0;TACTICAL;BOLTGUN;CHAIN_SWORD;IronWarriors;Perturabo;500;Medrengard
+Calgar;44.8;3;150.0;HELIX;BOLTGUN;POWER_FIST;Ultramarines;Roboute Guilliman;1200;Macragge
+Shrike;9.1;21;85.6;ASSAULT;FLAMER;CHAIN_SWORD;RavenGuard;Corvus Corax;650;Deliverance
+Logan;13.6;8;130.3;HELIX;HEAVY_FLAMER;POWER_FIST;SpaceWolves;Leman Russ;900;Fenris
+Mephiston;NaN;32  ;NaN; HELIX  ;MELTAGUN;MANREAPER;BloodAngels;Sanguinius;400;Baal
+;;;;;;;;;;
+Aboba;6.9;32;140.7;HELIX;MELTAGUN;MANREAPER;BloodAngels;Sanguinius;400;Baal
+-10
+NaN;6.9;32;140.7;HELIX;MELTAGUN;MANREAPER;;Sanguinius;;Baal
+</file>
+
+<file path="pom.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>lab6maven</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>Server</module>
+        <module>Client</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+</project>
+</file>
+
+</files>
