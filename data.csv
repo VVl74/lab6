@@ -1,0 +1,14 @@
+Titus;12.5;34;95.3;ASSAULT;BOLTGUN;CHAIN_SWORD;Ultramarines;Roboute Guilliman;1000;Macragge
+Cassius;5.2;11;88.0;TACTICAL;MELTAGUN;POWER_SWORD;Ultramarines;Roboute Guilliman;950;Talassar
+Ragnar;22.1;9;120.5;ASSAULT;FLAMER;CHAIN_AXE;SpaceWolves;Leman Russ;800;Fenris
+Azrael;7.7;45;99.9;TACTICAL;HEAVY_FLAMER;POWER_SWORD;DarkAngels;Lion ElJonson;700;TheRock
+Dante;18.4;27;110.2;ASSAULT;MELTAGUN;CHAIN_SWORD;BloodAngels;Sanguinius;600;Baal
+Honsou;3.3;14;70.0;TACTICAL;BOLTGUN;CHAIN_SWORD;IronWarriors;Perturabo;500;Medrengard
+Calgar;44.8;3;150.0;HELIX;BOLTGUN;POWER_FIST;Ultramarines;Roboute Guilliman;1200;Macragge
+Shrike;9.1;21;85.6;ASSAULT;FLAMER;CHAIN_SWORD;RavenGuard;Corvus Corax;650;Deliverance
+Logan;13.6;8;130.3;HELIX;HEAVY_FLAMER;POWER_FIST;SpaceWolves;Leman Russ;900;Fenris
+Mephiston;NaN;32  ;NaN; HELIX  ;MELTAGUN;MANREAPER;BloodAngels;Sanguinius;400;Baal
+;;;;;;;;;;
+Aboba;6.9;32;140.7;HELIX;MELTAGUN;MANREAPER;BloodAngels;Sanguinius;400;Baal
+-10
+NaN;6.9;32;140.7;HELIX;MELTAGUN;MANREAPER;;Sanguinius;;Baal
