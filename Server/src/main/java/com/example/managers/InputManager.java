@@ -5,33 +5,37 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.logging.Logger;
 
 public class InputManager {
     Logger logger = Logger.getLogger(String.valueOf(InputManager.class));
     Terminal terminal;
-    LineReader reader;
+    Object reader;
+    boolean useJLine;
     public InputManager() {
         try {
             terminal = TerminalBuilder.builder().system(true).build();
+            reader = LineReaderBuilder.builder().terminal(terminal).build();
+            useJLine = true;
         } catch (Exception e) {
-            throw new RuntimeException();
+            System.out.println("JLine не доступен используем обычный терминал");
+            reader = new BufferedReader(new InputStreamReader(System.in));
+            useJLine = false;
+
         }
-
-        reader = LineReaderBuilder.builder().terminal(terminal).build();
     }
-    public void InputTerm(CommandManager curCommandManager) throws IOException {
-        if (System.in.available() > 0) {
-            String TerInput = null;
-            try {
-                TerInput = reader.readLine();
-            } catch (Exception e) {
-                System.out.println("ввод завершен");
+    public void InputTerm(CommandManager curCommandManager) {
+        try {
+            if (System.in.available() <= 0) {
+                return;
             }
-
+            String TerInput = null;
+            if (useJLine) {
+                TerInput = ((LineReader) reader).readLine();
+            } else {
+                TerInput = ((BufferedReader) reader).readLine();
+            }
             if (TerInput == null) {
                 return;
             }
@@ -50,6 +54,8 @@ public class InputManager {
             } else {
                 logger.info("команда не выполнена");
             }
+        } catch (Exception e) {
+            System.out.println("Ошибка при обработке строки");
         }
     }
 }
