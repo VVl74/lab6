@@ -33,7 +33,7 @@ public class CommandManager {
         commandHashMap.put("help", new Help(commandHashMap));
         commandHashMap.put("info", new Info());
         commandHashMap.put("history", new History(commandHistory));
-        commandHashMap.put("exit", new Exit());
+        commandHashMap.put("exit", new Exit(commandHashMap));
         commandHashMap.put("clear", new Clear());
         commandHashMap.put("show", new Show());
         commandHashMap.put("insert", new InsertNull());

@@ -4,13 +4,21 @@ import com.example.commands.Command;
 import com.example.managers.CollectionManager;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 /**
  * Комманда для выхода из программы
  *
  */
 public class Exit implements Command {
+    private HashMap<String, Command> commandHashMap;
+    private String filename = "collect_file";
+    public Exit(HashMap<String, Command> commandHashMap) {
+        this.commandHashMap = commandHashMap;
+    }
+    public void execute() {}
     public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+        commandHashMap.get("save").execute(new String[]{filename}, collectionManager, out);
         System.exit(0);
     }
     public String getComandInfo() {
