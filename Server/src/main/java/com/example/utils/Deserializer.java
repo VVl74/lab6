@@ -1,9 +1,10 @@
 package com.example.utils;
 
+import com.example.Wrapper;
+import com.example.WrapperUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.example.utils.Wrapper;
 
 import java.io.IOException;
 

@@ -20,7 +20,7 @@ public class ServerManager {
         buffer = ByteBuffer.allocate(16384);
     }
 
-    public InputPack recive() throws IOException {
+    public InputPack receive() throws IOException {
         buffer.clear();
         SocketAddress client = servChannel.receive(buffer);
 

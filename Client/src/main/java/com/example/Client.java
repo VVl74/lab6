@@ -26,7 +26,9 @@ public class Client {
     public static void main(String[] args) throws IOException {
         ServerManager channel = new ServerManager(12345);
 
-        ClientEngine clientEngine = new ClientEngine(channel);
+         ServerManagerInterface retryChannel = new RetryDecor(channel, 5);
+
+        ClientEngine clientEngine = new ClientEngine(retryChannel);
 
         clientEngine.run();
     }

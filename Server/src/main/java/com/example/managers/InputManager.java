@@ -25,7 +25,8 @@ public class InputManager {
 
         }
     }
-    public void InputTerm(CommandManager curCommandManager) {
+
+    public void inputTerm(CommandManager curCommandManager) {
         try {
             if (System.in.available() <= 0) {
                 return;

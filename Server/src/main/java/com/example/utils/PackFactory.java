@@ -1,9 +1,9 @@
 package com.example.utils;
 
+import com.example.Wrapper;
+import com.example.WrapperUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.managers.CommandManager;
-import com.example.utils.OutputPack;
-import com.example.utils.Wrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -22,19 +22,22 @@ public class PackFactory {
         ByteArrayOutputStream bufStream = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(bufStream, true);
 
-        try {
-            if (!parts[0].equals("exit") && !parts[0].equals("save")) {
-                curCommandManager.newCommand(parts, out);
-            }
-        } catch (Exception e) {
-            // ans = ("Ошибка, команда не выполнена");
-        } finally {
-            // System.setOut(old);
+        if (!parts[0].equals("exit") && !parts[0].equals("save")) {
+            curCommandManager.newCommand(parts, out);
         }
 
         out.flush();
         String prStr = bufStream.toString();
 
+
+        ByteBuffer otvet = makeWrap(prStr);
+
+        OutputPack outPack = new OutputPack(otvet, client);
+
+        return outPack;
+
+    }
+    public ByteBuffer makeWrap(String prStr) {
         Wrapper res = new Wrapper();
         int sum = utils.getControlSum(prStr);
         int hash = utils.makeHash(prStr);
@@ -49,12 +52,7 @@ public class PackFactory {
             jsonByte = "ошибка сериализации".getBytes();
         }
 
-        ByteBuffer otvet = ByteBuffer.wrap(jsonByte);
-
-        OutputPack outPack = new OutputPack(otvet, client);
-
-        // System.setOut(old);
-
-        return outPack;
+        ByteBuffer ansver = ByteBuffer.wrap(jsonByte);
+        return ansver;
     }
 }

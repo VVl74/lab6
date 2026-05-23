@@ -5,10 +5,10 @@ import java.nio.ByteBuffer;
 
 public class ClientEngine {
     InpOutFactory factory;
-    ServerManager serverManager;
+    ServerManagerInterface serverManager;
     Reader reader;
 
-    public ClientEngine(ServerManager newServerManager) {
+    public ClientEngine(ServerManagerInterface newServerManager) {
         factory = new InpOutFactory();
         serverManager = newServerManager;
         reader = new Reader();
@@ -36,7 +36,7 @@ public class ClientEngine {
 
             ByteBuffer vvodBuf = ByteBuffer.allocate(16384);
 
-            vvodBuf = serverManager.recive(vvodBuf);
+            vvodBuf = serverManager.receive(vvodBuf);
 
             String itog  = factory.InputFactory(vvodBuf);
 

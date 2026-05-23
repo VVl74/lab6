@@ -1,6 +1,5 @@
 package com.example.managers;
 
-import com.example.managers.InputManager;
 import com.example.utils.Deserializer;
 import com.example.utils.InputPack;
 import com.example.utils.OutputPack;
@@ -30,14 +29,14 @@ public class ServerEngine {
         while (true) {
             try {
                 InputPack pack;
-                pack = servChannel.recive();
+                pack = servChannel.receive();
 
                 if (pack.client != null) {
                     logger.info("запрос получен");
                     processing(pack);
                 }
 
-                inputManager.InputTerm(commandManager);
+                inputManager.inputTerm(commandManager);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
