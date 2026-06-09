@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
  *
  */
 public class SpaceMarine implements Comparable<SpaceMarine> {
+    private int ownerId;
+    private String ownerName;
     private int id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
@@ -50,6 +52,8 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
     public Chapter getChapter() {
         return chapter;
     }
+    public String getOwnerName() { return ownerName; }
+    public int getOwnerId() {return ownerId; }
 
     public LocalDateTime spaceGetTime() {
         return creationDate;
@@ -72,6 +76,7 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
     @Override
     public String toString() {
         return "id= " + id + " name= " + name + " health= " + health + " chapter= "
-                + chapter.getName() + " world = " + chapter.getWorld();
+                + chapter.getName() + " world = " + chapter.getWorld()
+                 + " owner id: " + getOwnerId() + " owner name: " + getOwnerName();
     }
 }
