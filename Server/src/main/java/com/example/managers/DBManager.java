@@ -11,13 +11,14 @@ public class DBManager {
     private static DBManager instance;
     final String USER = "s494533";
     final String PASSWD = "eW5IfMpYfQNlAvJ7";
-    final String URL = "jdbc:postgresql://localhost:5433/studs";
-    private Connection connection;
-    private Statement statement;
+    final String URL = "jdbc:postgresql://localhost:5433/studs"; // тут нужно будет пробросить порт с твоего компа на сервак, у меня только так оно заработало
+    private Connection connection; // ПОдключение к нашей базе
 
+    // Конструктор дефолтный
     public DBManager() throws SQLException {
     }
 
+    // Синглтон. Проверка на уже существующий экземпляр класса
     public static DBManager getInstance() throws SQLException {
         if (instance == null) {
             instance = new DBManager();
@@ -26,6 +27,7 @@ public class DBManager {
         return instance;
     }
 
+    // Подключение к базе данных
     public void connect() throws SQLException {
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(URL, USER, PASSWD);
@@ -33,6 +35,7 @@ public class DBManager {
         }
     }
 
+    // Отключение от базы данных
     public void disconect() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
@@ -40,22 +43,26 @@ public class DBManager {
         }
     }
 
+    // Выполнение QUERY-запроса
     public ResultSet executeQuery(String sql) throws SQLException {
         Statement statement = connection.createStatement();
 
         return statement.executeQuery(sql);
     }
 
+    // Выполнение update-запроса
     public int executeUpdate(String sql) throws SQLException {
         Statement statement = connection.createStatement();
 
         return statement.executeUpdate(sql);
     }
 
+    // Подготовка запроса (Там на метоните было написано про это но чет лень было читать, думаю, пусть будет)
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return connection.prepareStatement(sql);
     }
 
+    // Возвращает наше подключение, пока хз зачем, но идешка сказала что нужно
     public Connection getConnection() {
         return connection;
     }
