@@ -20,7 +20,7 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
     private MeleeWeapon meleeWeapon; //Поле не может быть null
     private Chapter chapter; //Поле не может быть null
 
-    public SpaceMarine(int nid, String nname, Coordinates ncoordinates, LocalDateTime time,  double nhealth, AstartesCategory ncategory, Weapon nweaponType, MeleeWeapon nmeleeWeapon, Chapter nchapter) {
+    public SpaceMarine(int nid, String nname, Coordinates ncoordinates, LocalDateTime time,  double nhealth, AstartesCategory ncategory, Weapon nweaponType, MeleeWeapon nmeleeWeapon, Chapter nchapter, int owid) {
         id = nid;
         name = nname;
         coordinates = ncoordinates;
@@ -30,6 +30,7 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
         weaponType = nweaponType;
         meleeWeapon = nmeleeWeapon;
         chapter = nchapter;
+        ownerId = owid;
     }
 
     @Override

@@ -4,6 +4,8 @@ import com.example.collection.*;
 import com.example.exeptions.FileExeption;
 import com.example.exeptions.InputExeption;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 /**
  * Класс по сути билдер более сложных штук
@@ -74,6 +76,28 @@ public class Parser {
         } catch(Exception e) {
             throw new InputExeption();
         }
+    }
+
+    public SpaceMarine parseSQLMarine(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int ownerId = rs.getInt("owner_id");
+        String name = rs.getString("name");
+        int x = rs.getInt("X");
+        long y = rs.getLong("Y");
+        Coordinates coords = new Coordinates((float) x, y);
+        LocalDateTime creationDate = rs.getTimestamp("datetime").toLocalDateTime();
+        double health = rs.getDouble("health");
+        AstartesCategory category = AstartesCategory.valueOf(rs.getString("category"));
+        String weaponStr = rs.getString("weapontype");
+        Weapon weapon = weaponStr != null ? Weapon.valueOf(weaponStr) : null;
+        MeleeWeapon meleeWeapon = MeleeWeapon.valueOf(rs.getString("meleeweapon"));
+        String chapterName = rs.getString("chapter_name");
+        String parentLegion = rs.getString("chapter_parent_legion");
+        long marinesCount = rs.getLong("chapter_marines_count");
+        String world = rs.getString("chapter_world");
+        Chapter chapter = new Chapter(chapterName, parentLegion, marinesCount, world);
+        SpaceMarine marine = new SpaceMarine(id, name, coords, creationDate, health, category, weapon, meleeWeapon, chapter, ownerId);
+        return marine;
     }
 
     public SpaceMarine parseCSV(String str) {
