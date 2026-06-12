@@ -1,6 +1,5 @@
 package com.example.commands;
 
-import com.example.commands.Command;
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
 import com.example.managers.CollectionManager;
@@ -13,7 +12,7 @@ import java.util.Set;
  * Комманда для удаления всеъ элементов чей улюч меньше заданного
  *
  */
-public class RemoveLowerKeyNull implements Command {
+public class RemoveLowerKey implements Command {
     public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
         if (args.length > 1) {
             throw new ArgExeption();

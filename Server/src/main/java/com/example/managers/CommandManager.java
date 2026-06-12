@@ -36,13 +36,13 @@ public class CommandManager {
         commandHashMap.put("exit", new Exit(commandHashMap));
         commandHashMap.put("clear", new Clear());
         commandHashMap.put("show", new Show());
-        commandHashMap.put("insert", new InsertNull());
+        commandHashMap.put("insert", new Insert());
         commandHashMap.put("update", new UpdateId());
-        commandHashMap.put("remove_key", new RemoveKeyNull());
+        commandHashMap.put("remove_key", new RemoveKey());
         commandHashMap.put("execute_script", new ExecuteScriptFileName());
         commandHashMap.put("save", new Save());
-        commandHashMap.put("replace_if_lowe", new ReplaceIfLoweNull());
-        commandHashMap.put("remove_lower_key", new RemoveLowerKeyNull());
+        commandHashMap.put("replace_if_lowe", new ReplaceIfLower());
+        commandHashMap.put("remove_lower_key", new RemoveLowerKey());
         commandHashMap.put("count_less_than_health", new CountLessThanHealth());
         commandHashMap.put("filter_less_than_chapter", new FilterLessThanChapter());
         commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter());

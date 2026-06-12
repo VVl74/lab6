@@ -17,7 +17,7 @@ public class DBCollectionManager {
     }
 
     public boolean registerUser(String username, String passwordHash) {
-        String zapr = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
+        String zapr = "INSERT INTO users (login, password_hash) VALUES (?, ?)";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setString(1, username);
@@ -31,7 +31,7 @@ public class DBCollectionManager {
     }
 
     public boolean proverkUser(String username, String passwordHash) {
-        String zapr = "SELECT ID FROM users WHERE login = ? AND password_hash = ?";
+        String zapr = "SELECT id FROM users WHERE login = ? AND password_hash = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setString(1, username);
@@ -44,8 +44,8 @@ public class DBCollectionManager {
         }
     }
 
-    public HashMap<Integer, SpaceMarine> getCollection(String username, String passwordHash) {
-        String zapr = "SELECT * FROM users";
+    public HashMap<Integer, SpaceMarine> getCollection() {
+        String zapr = "SELECT * FROM spacemarines";
 
         HashMap<Integer, SpaceMarine> collection = new HashMap<>();
 
@@ -62,17 +62,29 @@ public class DBCollectionManager {
         return collection;
     }
 
-    public boolean insertMarine(String username, String passwordHash) {
+    public boolean insertMarine(SpaceMarine marine, int ownerId) {
         String zapr = "INSERT INTO space_marines (" +
                 "name, coord_x, coord_y, creation_date, health, category, " +
                 "weapon_type, melee_weapon, chapter_name, chapter_parent_legion, " +
                 "chapter_marines_count, chapter_world, owner_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr, Statement.RETURN_GENERATED_KEYS)) {
-            przapr.setString(1, username);
-            przapr.setString(2, passwordHash);
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setString(1, marine.getName());
+            przapr.setInt(2, (int) marine.getCoordinates().getX());
+            przapr.setLong(3, marine.getCoordinates().getY());
+            przapr.setTimestamp(4, Timestamp.valueOf(marine.spaceGetTime()));
+            przapr.setDouble(5, marine.getHealth());
+            przapr.setString(6, marine.getCategory().toString());
+            przapr.setString(7, marine.getWeaponType().toString());
+            przapr.setString(8, marine.getMeleeWeapon().toString());
+            przapr.setString(9, marine.getChapter().getName());
+            przapr.setString(10, marine.getChapter().getParentLegion());
+            przapr.setLong(11, marine.getChapter().getMarinesCount());
+            przapr.setString(12, marine.getChapter().getWorld());
+            przapr.setInt(13, ownerId);
             przapr.executeUpdate();
+
             return true;
 
         } catch (SQLException e) {

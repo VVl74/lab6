@@ -1,7 +1,6 @@
 package com.example.commands;
 
 import com.example.collection.SpaceMarine;
-import com.example.commands.Command;
 import com.example.exeptions.ArgExeption;
 import com.example.managers.CollectionManager;
 import com.example.utils.Parser;
@@ -12,7 +11,7 @@ import java.io.PrintWriter;
  * Комманда замены элемента если его здоровье меньше чем текущего
  *
  */
-public class ReplaceIfLoweNull implements Command {
+public class ReplaceIfLower implements Command {
     public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
         if (args.length != 12) {
             throw new ArgExeption();

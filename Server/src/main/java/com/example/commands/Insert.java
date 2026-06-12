@@ -11,7 +11,7 @@ import java.io.PrintWriter;
  * Комманда для добавления элемента в коллекцию
  *
  */
-public class InsertNull implements Command {
+public class Insert implements Command {
     public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
         if (args.length != 12) {
             throw new ArgExeption();
