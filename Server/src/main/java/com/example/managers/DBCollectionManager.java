@@ -45,7 +45,7 @@ public class DBCollectionManager {
     }
 
     public HashMap<Integer, SpaceMarine> getCollection() {
-        String zapr = "SELECT * FROM spacemarines";
+        String zapr = "SELECT * FROM space_marines";
 
         HashMap<Integer, SpaceMarine> collection = new HashMap<>();
 
@@ -64,8 +64,8 @@ public class DBCollectionManager {
 
     public boolean insertMarine(SpaceMarine marine, int ownerId) {
         String zapr = "INSERT INTO space_marines (" +
-                "name, coord_x, coord_y, creation_date, health, category, " +
-                "weapon_type, melee_weapon, chapter_name, chapter_parent_legion, " +
+                "name, X, Y, datetime, health, category, " +
+                "weapontype, meleeweapon, chapter_name, chapter_parent_legion, " +
                 "chapter_marines_count, chapter_world, owner_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -90,8 +90,193 @@ public class DBCollectionManager {
         } catch (SQLException e) {
             return false;
         }
-
     }
+
+    public boolean removeMarine(int id, int ownerId) {
+        String zapr = "DELETE FROM space_marines WHERE id = ? AND owner_id = ?";
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setInt(1, id);
+            przapr.setInt(2, ownerId);
+            int del = przapr.executeUpdate();
+
+            return del > 0;
+
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public int getUserId(String name) {
+        String zapr = "SELECT id FROM users WHERE login = ?";
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setString(1, name);
+
+            ResultSet rs = przapr.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                return -1;
+            }
+
+        } catch (SQLException e) {
+            return -1;
+        }
+    }
+
+    public int removeLowerKeyMarine(int id, int ownerId) {
+        String zapr = "DELETE FROM space_marines WHERE id < ? AND owner_id = ?";
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setInt(1, id);
+            przapr.setInt(2, ownerId);
+            int del = przapr.executeUpdate();
+
+            return del;
+
+        } catch (SQLException e) {
+            return 0;
+        }
+    }
+
+    public int removeAll(int ownerId) {
+        String zapr = "DELETE FROM space_marines WHERE owner_id = ?";
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setInt(1, ownerId);
+
+            int del = przapr.executeUpdate();
+
+            return del;
+
+        } catch (SQLException e) {
+            return 0;
+        }
+    }
+
+    public HashMap<Integer, SpaceMarine> selectChapterLess(int count) {
+        String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count < ?";
+
+        HashMap<Integer, SpaceMarine> collection = new HashMap<>();
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setInt(1, count);
+
+            ResultSet rs = przapr.executeQuery();
+
+            while(rs.next()) {
+                SpaceMarine marine = parser.parseSQLMarine(rs);
+                collection.put(marine.getId(), marine);
+            }
+
+
+            return collection;
+
+        } catch (SQLException e) {
+            return collection;
+        }
+    }
+
+    public boolean updateMarine(int id, SpaceMarine marine, int ownerId) throws SQLException {
+        String sql = "UPDATE space_marines SET " +
+                "name = ?, X = ?, Y = ?, datetime = ?, health = ?, category = ?, " +
+                "weapontype = ?, meleeweapon = ?, chapter_name = ?, chapter_parent_legion = ?, " +
+                "chapter_marines_count = ?, chapter_world = ? " +
+                "WHERE id = ? AND owner_id = ?";
+        try (PreparedStatement ps = dbManager.getConnection().prepareStatement(sql)) {
+            ps.setString(1, marine.getName());
+            ps.setInt(2, (int) marine.getCoordinates().getX());
+            ps.setLong(3, marine.getCoordinates().getY());
+            ps.setTimestamp(4, Timestamp.valueOf(marine.spaceGetTime()));
+            ps.setDouble(5, marine.getHealth());
+            ps.setString(6, marine.getCategory().toString());
+            String weaponStr = marine.getWeaponType() == null ? null : marine.getWeaponType().toString();
+            ps.setString(7, weaponStr);
+            ps.setString(8, marine.getMeleeWeapon().toString());
+            ps.setString(9, marine.getChapter().getName());
+            ps.setString(10, marine.getChapter().getParentLegion());
+            ps.setLong(11, marine.getChapter().getMarinesCount());
+            ps.setString(12, marine.getChapter().getWorld());
+            ps.setInt(13, id);
+            ps.setInt(14, ownerId);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public int countLessHealth(double health) {
+        String zapr = "SELECT COUNT(*) FROM space_marines WHERE health < ?";
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setDouble(1, health);
+
+            ResultSet del = przapr.executeQuery();
+
+            if (del.next()) {
+                return del.getInt(1);
+            } else {
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            return 0;
+        }
+    }
+
+    public HashMap<Integer, SpaceMarine> selectChapterGreat(int count) {
+        String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count > ?";
+
+        HashMap<Integer, SpaceMarine> collection = new  HashMap<>();
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            przapr.setInt(1, count);
+
+            ResultSet rs = przapr.executeQuery();
+
+            while(rs.next()) {
+                SpaceMarine marine = parser.parseSQLMarine(rs);
+                collection.put(marine.getId(), marine);
+            }
+
+
+            return collection;
+
+        } catch (SQLException e) {
+            return collection;
+        }
+    }
+
+    public boolean updateLessHelth(int id, SpaceMarine marine, int ownerId) throws SQLException {
+        String sql = "UPDATE space_marines SET " +
+                "name = ?, X = ?, Y = ?, datetime = ?, health = ?, category = ?, " +
+                "weapontype = ?, meleeweapon = ?, chapter_name = ?, chapter_parent_legion = ?, " +
+                "chapter_marines_count = ?, chapter_world = ? " +
+                "WHERE id = ? AND owner_id = ? AND health > ?";
+        try (PreparedStatement ps = dbManager.getConnection().prepareStatement(sql)) {
+            ps.setString(1, marine.getName());
+            ps.setInt(2, (int) marine.getCoordinates().getX());
+            ps.setLong(3, marine.getCoordinates().getY());
+            ps.setTimestamp(4, Timestamp.valueOf(marine.spaceGetTime()));
+            ps.setDouble(5, marine.getHealth());
+            ps.setString(6, marine.getCategory().toString());
+            String weaponStr = marine.getWeaponType() == null ? null : marine.getWeaponType().toString();
+            ps.setString(7, weaponStr);
+            ps.setString(8, marine.getMeleeWeapon().toString());
+            ps.setString(9, marine.getChapter().getName());
+            ps.setString(10, marine.getChapter().getParentLegion());
+            ps.setLong(11, marine.getChapter().getMarinesCount());
+            ps.setString(12, marine.getChapter().getWorld());
+            ps.setInt(13, id);
+            ps.setInt(14, ownerId);
+            ps.setDouble(15, marine.getHealth());
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+
 
     public void InitTable() throws SQLException {
         String dropcat = "DROP TYPE IF EXISTS astartes_category";
@@ -102,19 +287,19 @@ public class DBCollectionManager {
         String weapon = "CREATE TYPE weapon_type AS ENUM ('BOLTGUN', 'MELTAGUN', 'FLAMER', 'HEAVY_FLAMER')";
         String melee = "CREATE TYPE melee_weapon_type AS ENUM ('CHAIN_SWORD', 'POWER_SWORD', 'CHAIN_AXE', 'MANREAPER', 'POWER_FIST')";
 
-        String createSpace = "CREATE TABLE IF NOT EXISTS spacemarines (" +
+        String createSpace = "CREATE TABLE IF NOT EXISTS space_marines (" +
                 "id SERIAL PRIMARY KEY NOT NULL, " +
                 "name TEXT NOT NULL, " +
                 "X INTEGER NOT NULL, " +
                 "Y INTEGER NOT NULL, " +
                 "datetime TIMESTAMP NOT NULL," +
-                "health INTEGER NOT NULL," +
+                "health DOUBLE NOT NULL," +
                 "category ENUM('ASSAULT', 'TACTICAL', 'HELIX') DEFAULT 'ASSAULT' NOT NULL," +
                 "weapontype ENUM('BOLTGUN', 'MELTAGUN', 'FLAMER', 'HEAVY_FLAMER') NOT NULL," +
                 "meleeweapon ENUM('CHAIN_SWORD', 'POWER_SWORD', 'CHAIN_AXE', 'MANREAPER', 'POWER_FIST') NOT NULL," +
                 "chapter_name TEXT NOT NULL, " +
                 "chapter_parent_legion TEXT NOT NULL," +
-                "chapter_marines_count BIGINT NOT NULL CHECK (chapter_marines_count > 0 AND chapter_marines_count <= 1000), " +
+                "chapter_marines_count INTEGER NOT NULL CHECK (chapter_marines_count > 0 AND chapter_marines_count <= 1000), " +
                 "chapter_world TEXT NOT NULL, " +
                 "owner_id INTEGER REFERENCES users(id)) ON DELETE CASCADE;";
 
