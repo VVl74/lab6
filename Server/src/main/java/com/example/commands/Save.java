@@ -16,6 +16,7 @@ import java.util.Set;
  * Комманда для сохранения всех элементов коллекции в файл
  *
  */
+/*
 public class Save implements Command {
     @Override
     public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
@@ -63,3 +64,4 @@ public class Save implements Command {
         return "save file_name (string): сохранить коллекцию в файл, необходимо передать название\n";
     }
 }
+ */

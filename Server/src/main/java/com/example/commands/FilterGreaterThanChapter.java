@@ -1,20 +1,24 @@
 package com.example.commands;
 
 import com.example.collection.Chapter;
+import com.example.collection.SpaceMarine;
 import com.example.commands.Command;
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 /**
  * Комманда для выведения всех элементов чей Chapter больше заданного
  *
  */
 public class FilterGreaterThanChapter implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String password) throws ArgExeption, InputExeption {
         if (args.length !=4) {
             throw new ArgExeption();
         }
@@ -27,12 +31,11 @@ public class FilterGreaterThanChapter implements Command {
             throw new InputExeption();
         }
 
-        Set<Integer> mapValues = collectionManager.getCollection().keySet();
+        HashMap<Integer, SpaceMarine> res = collectionManager.selectChapterGreat((int) chapter.getMarinesCount());
 
-        for (var v : mapValues) {
-            if (collectionManager.getCollection().get(v).getChapter().compareTo(chapter) > 0) {
-                out.println(collectionManager.getCollection().get(v));
-            }
+
+        for (var v : res.values()) {
+            out.println(collectionManager.getCollection().get(v));
         }
 
         out.println("все элементы с Chapter > заданного выведены\n");

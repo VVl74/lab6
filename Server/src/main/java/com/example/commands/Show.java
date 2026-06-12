@@ -2,6 +2,7 @@ package com.example.commands;
 
 import com.example.collection.SpaceMarine;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Show implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
         Collection<SpaceMarine> mapValues = collectionManager.getCollection().values();
 
         ArrayList<SpaceMarine> nmarines =  mapValues.stream()

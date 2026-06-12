@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 /**
@@ -29,7 +30,7 @@ public class Main {
      *      <li> Запускаем режим интерактивной работы с коллекцией </li>
      *  </ol>
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
         Logger logger = LoggerFactory.getLogger(Main.class);
         String filename = "data.csv";
 
@@ -45,7 +46,9 @@ public class Main {
             logger.info("не удалось прочитать файл");
         }
 
-        CollectionManager collectionManager = new CollectionManager(newCollection);
+        //CollectionManager collectionManager = new CollectionManager(newCollection);
+        DBManager dbManager = new DBManager();
+        DBCollectionManager collectionManager = new DBCollectionManager(dbManager);
 
         CommandManager curCommandManager = new CommandManager(collectionManager);
 

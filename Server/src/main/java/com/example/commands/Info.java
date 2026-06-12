@@ -2,6 +2,7 @@ package com.example.commands;
 
 import com.example.commands.Command;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
 
@@ -10,10 +11,9 @@ import java.io.PrintWriter;
  *
  */
 public class Info implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
-        out.println("Тип коллекции: " + collectionManager.getCollection().getClass().getName() +
-                " время создания "  + collectionManager.getTime() +
-                " колличество элементов " + collectionManager.getCollection().size());
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+        out.println(" время создания "  + collectionManager.getTimeinit() +
+                " колличество элементов " + collectionManager.countElement());
 
         out.println("информация о коллекции выведена\n");
     }

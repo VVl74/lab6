@@ -25,10 +25,10 @@ import java.util.HashMap;
 public class CommandManager {
     Logger logger = LoggerFactory.getLogger(CommandManager.class);
     public HashMap<String, Command> commandHashMap = new HashMap<>();
-    public CollectionManager collectionManager;
+    public DBCollectionManager collectionManager;
     ArrayList<String> commandHistory = new ArrayList<String>();
 
-    public CommandManager(CollectionManager newCollectionManager) {
+    public CommandManager(DBCollectionManager newCollectionManager) {
         collectionManager = newCollectionManager;
         commandHashMap.put("help", new Help(commandHashMap));
         commandHashMap.put("info", new Info());

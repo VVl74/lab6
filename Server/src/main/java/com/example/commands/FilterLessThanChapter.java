@@ -1,20 +1,23 @@
 package com.example.commands;
 
 import com.example.collection.Chapter;
+import com.example.collection.SpaceMarine;
 import com.example.commands.Command;
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Set;
 /**
  * Комманда для выведения всех элементов чей Chapter меньше заданного
  *
  */
 public class FilterLessThanChapter implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
         if (args.length !=4) {
             throw  new ArgExeption();
             // System.out.println("неверное число аргументов");
@@ -26,11 +29,13 @@ public class FilterLessThanChapter implements Command {
         } catch (Exception e) {
             throw new InputExeption();
         }
-        Set<Integer> mapValues = collectionManager.getCollection().keySet();
-        for (var v : mapValues) {
-            if (collectionManager.getCollection().get(v).getChapter().compareTo(chapter) < 0) {
-                out.println(collectionManager.getCollection().get(v));
-            }
+
+
+        HashMap<Integer, SpaceMarine> res = collectionManager.selectChapterLess((int) chapter.getMarinesCount());
+
+
+        for (var v : res.values()) {
+            out.println(collectionManager.getCollection().get(v));
         }
 
         out.println("все элементы с Chapter < заданного выведены\n");

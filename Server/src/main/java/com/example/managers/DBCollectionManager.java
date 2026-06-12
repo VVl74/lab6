@@ -4,16 +4,23 @@ import com.example.collection.SpaceMarine;
 import com.example.utils.Parser;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DBCollectionManager {
     private DBManager dbManager;
     private Parser parser;
+    private LocalDateTime timeinit;
 
     public DBCollectionManager(DBManager ndbManager) {
         dbManager = ndbManager;
         parser = new Parser();
+        timeinit = LocalDateTime.now();
+    }
+
+    public LocalDateTime getTimeinit() {
+        return timeinit;
     }
 
     public boolean registerUser(String username, String passwordHash) {
@@ -225,6 +232,23 @@ public class DBCollectionManager {
         }
     }
 
+    public int countElement() {
+        String zapr = "SELECT COUNT(*) FROM space_marines";
+
+        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            ResultSet del = przapr.executeQuery();
+
+            if (del.next()) {
+                return del.getInt(1);
+            } else {
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            return 0;
+        }
+    }
+
     public HashMap<Integer, SpaceMarine> selectChapterGreat(int count) {
         String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count > ?";
 
@@ -273,6 +297,8 @@ public class DBCollectionManager {
             ps.setDouble(15, marine.getHealth());
 
             return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            return false;
         }
     }
 

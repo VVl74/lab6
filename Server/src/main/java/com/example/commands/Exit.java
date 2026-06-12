@@ -2,6 +2,7 @@ package com.example.commands;
 
 import com.example.commands.Command;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -17,8 +18,8 @@ public class Exit implements Command {
         this.commandHashMap = commandHashMap;
     }
     public void execute() {}
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
-        commandHashMap.get("save").execute(new String[]{filename}, collectionManager, out);
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+        // commandHashMap.get("save").execute(new String[]{filename}, collectionManager, out);
         System.exit(0);
     }
     public String getComandInfo() {

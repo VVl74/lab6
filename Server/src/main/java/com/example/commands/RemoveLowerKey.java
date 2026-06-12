@@ -3,6 +3,7 @@ package com.example.commands;
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Set;
  *
  */
 public class RemoveLowerKey implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
         if (args.length > 1) {
             throw new ArgExeption();
         }
@@ -24,18 +25,7 @@ public class RemoveLowerKey implements Command {
             throw new InputExeption();
         }
 
-        List<Integer> removeList = new ArrayList<>();
-
-        Set<Integer> mapValues = collectionManager.getCollection().keySet();
-        for (var v : mapValues) {
-            if (v < id) {
-                removeList.add(v);
-            }
-        }
-
-        for (var k: removeList) {
-            collectionManager.removeElement(k);
-        }
+        collectionManager.removeLowerKeyMarine(id, collectionManager.getUserId(login));
 
         out.println("все элементы чей ключ < заданного удалены\n");
     }

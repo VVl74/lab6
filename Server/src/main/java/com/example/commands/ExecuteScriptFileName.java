@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class ExecuteScriptFileName implements Command {
 
-    public void execute(String[] args, CollectionManager collection, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collection, PrintWriter out) {
         Logger logger = LoggerFactory.getLogger(ExecuteScriptFileName.class);
         if (args.length > 1 || args.length == 0) {
             throw  new ArgExeption();

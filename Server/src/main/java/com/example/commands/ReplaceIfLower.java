@@ -3,16 +3,18 @@ package com.example.commands;
 import com.example.collection.SpaceMarine;
 import com.example.exeptions.ArgExeption;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 /**
  * Комманда замены элемента если его здоровье меньше чем текущего
  *
  */
 public class ReplaceIfLower implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String password) {
         if (args.length != 12) {
             throw new ArgExeption();
             // System.out.println("Неверный ввод данных");
@@ -26,11 +28,12 @@ public class ReplaceIfLower implements Command {
             out.println("ошибка ввода данных");
             return;
         }
-        if (collectionManager.getCollection().get(spacemar.getId()).compareTo(spacemar) > 0) {
-            collectionManager.swapElement(spacemar, spacemar.getId());
-            out.println("элемент обновлен\n");
-        } else {
-            out.println("элемент не обновлен\n");
+
+        try {
+            collectionManager.updateLessHelth(spacemar.getId(), spacemar, collectionManager.getUserId(login));
+        } catch (SQLException e) {
+            out.println("запрос не удался");
+            return;
         }
     }
     public String getComandInfo() {

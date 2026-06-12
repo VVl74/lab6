@@ -3,6 +3,7 @@ package com.example.commands;
 import com.example.collection.SpaceMarine;
 import com.example.exeptions.ArgExeption;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
 import java.io.PrintWriter;
@@ -12,7 +13,7 @@ import java.io.PrintWriter;
  *
  */
 public class Insert implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
         if (args.length != 12) {
             throw new ArgExeption();
             //System.out.println("неверное число аргументов " + args.length);
@@ -25,7 +26,9 @@ public class Insert implements Command {
             out.println("ошибка ввода данных");
             return;
         }
-        collectionManager.inputElement(spacemar);
+
+        collectionManager.insertMarine(spacemar, collectionManager.getUserId(login));
+        // collectionManager.inputElement(spacemar);
 
         out.println("элемент добавлен\n");
     }

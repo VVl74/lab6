@@ -3,6 +3,7 @@ package com.example.commands;
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
 import com.example.managers.CollectionManager;
+import com.example.managers.DBCollectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.Set;
  *
  */
 public class CountLessThanHealth implements Command {
-    public void execute(String[] args, CollectionManager collectionManager, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) throws ArgExeption, InputExeption {
         Logger logger = LoggerFactory.getLogger(CountLessThanHealth.class);
         if (args.length > 1) {
             throw new ArgExeption();
@@ -29,14 +30,9 @@ public class CountLessThanHealth implements Command {
         }
 
         int sh = 0;
-        Set <Integer> mapValues = collectionManager.getCollection().keySet();
+        sh = collectionManager.countLessHealth(hp);
 
-        for (var v : mapValues) {
-            if (collectionManager.getCollection().get(v).getHealth() < hp) {
-                sh++;
-            }
-        }
-        out.println("колво элементов:" + sh);
+        out.println("колво элементов: " + sh);
         out.println("элементы посчитаны\n");
         logger.info("элементы посчитаны");
     }
