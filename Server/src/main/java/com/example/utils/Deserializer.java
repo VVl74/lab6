@@ -17,7 +17,7 @@ public class Deserializer {
         utils = new WrapperUtils(31);
     }
 
-    public String[] deserialize(InputPack pack) {
+    public ParsedRequest deserialize(InputPack pack) {
         String input = null;
 
         Wrapper prvvod = null;
@@ -43,8 +43,10 @@ public class Deserializer {
             return null;
         }
 
+        String login = prvvod.getLogin();
+        String password = prvvod.getPassword();
         String[] parts = input.split(" ");
 
-        return parts;
+        return new ParsedRequest(parts, login, password);
     }
 }

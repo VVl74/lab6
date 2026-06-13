@@ -11,7 +11,15 @@ public class Reg {
         reader = nreader;
     }
 
-    public autorize() {
+    public String[] autorize() {
+        String login = reader.readLine();
+        String password = reader.readLine();
 
+
+        String[] res = new String[2];
+        res[0] = login;
+        res[1] = password;
+
+        return res;
     }
 }

@@ -332,7 +332,8 @@ public class DBCollectionManager {
         String createUsers = "CREATE TABLE IF NOT EXISTS users (" +
                 "id SERIAL PRIMARY KEY, " +
                 "login TEXT UNIQUE NOT NULL, " +
-                "password_hash TEXT NOT NULL);";
+                "password_hash TEXT NOT NULL, " +
+                "salt TEXT NOT NULL );";
         Statement statement = dbManager.getConnection().createStatement();
 
         statement.executeUpdate(dropcat);

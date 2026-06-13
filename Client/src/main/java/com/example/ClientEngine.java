@@ -8,9 +8,9 @@ public class ClientEngine {
     ServerManagerInterface serverManager;
     Reader reader;
     String login;
-    String passwordHash;
+    String password;
 
-    public ClientEngine(ServerManagerInterface newServerManager, String newlogin, String newpasswordHash) {
+    public ClientEngine(ServerManagerInterface newServerManager) {
         factory = new InpOutFactory();
         serverManager = newServerManager;
         reader = new Reader();
@@ -19,11 +19,10 @@ public class ClientEngine {
     }
 
     public void run() throws IOException {
-        System.out.print("Enter your login: ");
-        reader.readLine();
-
-        System.out.print("Enter your password: ");
-        reader.readLine();
+        Reg nreg = new Reg(reader);
+        String[] user = nreg.autorize();
+        login = user[0];
+        password = user[1];
         while (true) {
             try {
                 String input = reader.readLine();
@@ -31,7 +30,7 @@ public class ClientEngine {
                 if (input == null) {
                     continue;
                 }
-                processing(input, login, passwordHash);
+                processing(input, login, password);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

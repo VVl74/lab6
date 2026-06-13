@@ -1,9 +1,6 @@
 package com.example.managers;
 
-import com.example.utils.Deserializer;
-import com.example.utils.InputPack;
-import com.example.utils.OutputPack;
-import com.example.utils.PackFactory;
+import com.example.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +41,8 @@ public class ServerEngine {
     }
 
     private void processing(InputPack pack) throws IOException {
-        String[] parts = deserializer.deserialize(pack);
+        ParsedRequest parsedRequest = deserializer.deserialize(pack);
+        String[] parts = parsedRequest.getParts();
 
         if (parts == null) {
             return;
