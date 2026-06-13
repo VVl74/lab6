@@ -14,7 +14,7 @@ import java.sql.SQLException;
  *
  */
 public class ReplaceIfLower implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String password) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         if (args.length != 12) {
             throw new ArgExeption();
             // System.out.println("Неверный ввод данных");

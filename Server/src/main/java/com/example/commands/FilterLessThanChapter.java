@@ -17,7 +17,7 @@ import java.util.Set;
  *
  */
 public class FilterLessThanChapter implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         if (args.length !=4) {
             throw  new ArgExeption();
             // System.out.println("неверное число аргументов");

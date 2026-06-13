@@ -18,7 +18,7 @@ import java.util.Set;
  *
  */
 public class FilterGreaterThanChapter implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String password) throws ArgExeption, InputExeption {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) throws ArgExeption, InputExeption {
         if (args.length !=4) {
             throw new ArgExeption();
         }

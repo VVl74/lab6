@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Show implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         Collection<SpaceMarine> mapValues = collectionManager.getCollection().values();
 
         ArrayList<SpaceMarine> nmarines =  mapValues.stream()

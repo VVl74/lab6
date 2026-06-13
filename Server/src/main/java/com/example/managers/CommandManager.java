@@ -29,7 +29,7 @@ public class CommandManager {
     ArrayList<String> commandHistory = new ArrayList<String>();
 
     String login;
-    String passwordHash;
+    String password;
 
     public CommandManager(DBCollectionManager newCollectionManager, String nlogin, String npasswordHash) {
         collectionManager = newCollectionManager;
@@ -51,7 +51,7 @@ public class CommandManager {
         commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter());
 
         login = nlogin;
-        passwordHash = npasswordHash;
+        password = npasswordHash;
     }
 
     /**
@@ -76,8 +76,16 @@ public class CommandManager {
         if (commandHashMap.containsKey(com)) {
             try {
                 logger.info("команда выполняется");
-
-                commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, passwordHash);
+                if (com == "register") {
+                    commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
+                    return;
+                }
+                if (collectionManager.proverkUser(login, password)) {
+                    commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
+                    return;
+                } else {
+                    out.println("Ошибка, неверный логин или пароль");
+                }
             } catch (ArgExeption e) {
                 logger.info("ошибка, команда не выполнена");
                 out.println("Ошибка, команда не выполнена");

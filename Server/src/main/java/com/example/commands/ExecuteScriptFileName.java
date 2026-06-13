@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class ExecuteScriptFileName implements Command {
 
-    public void execute(String[] args, DBCollectionManager collection, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collection, PrintWriter out, String login, String pasword) {
         Logger logger = LoggerFactory.getLogger(ExecuteScriptFileName.class);
         if (args.length > 1 || args.length == 0) {
             throw  new ArgExeption();

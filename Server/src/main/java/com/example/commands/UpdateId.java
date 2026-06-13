@@ -14,7 +14,7 @@ import java.sql.SQLException;
  *
  */
 public class UpdateId implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         if (args.length != 12) {
             throw new ArgExeption();
         }

@@ -11,7 +11,7 @@ import java.io.PrintWriter;
  *
  */
 public class Info implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         out.println(" время создания "  + collectionManager.getTimeinit() +
                 " колличество элементов " + collectionManager.countElement());
 

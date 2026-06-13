@@ -14,7 +14,7 @@ import java.util.Set;
  *
  */
 public class CountLessThanHealth implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) throws ArgExeption, InputExeption {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) throws ArgExeption, InputExeption {
         Logger logger = LoggerFactory.getLogger(CountLessThanHealth.class);
         if (args.length > 1) {
             throw new ArgExeption();

@@ -19,7 +19,7 @@ public class History implements Command {
     }
 
     @Override
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         for (int i = max(history.toArray().length - 14, 0); i < history.toArray().length; i++) {
             out.println(history.get(i));
         }

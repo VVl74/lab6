@@ -1,6 +1,5 @@
 package com.example.commands;
 
-import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
@@ -11,6 +10,6 @@ import java.io.PrintWriter;
  */
 
 public interface Command {
-    void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String paswordHash);
+    void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword);
     String getComandInfo();
 }

@@ -13,7 +13,7 @@ import java.io.PrintWriter;
  *
  */
 public class Clear implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String paswordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         Logger logger = LoggerFactory.getLogger(Clear.class);
         collectionManager.removeAll(collectionManager.getUserId(login));
         //collectionManager.getCollection().clear();

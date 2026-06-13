@@ -18,7 +18,7 @@ public class Help implements Command {
     public Help(HashMap<String, Command> newCommandHashMap) {
         commandHashMap = newCommandHashMap;
     }
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         Set<String> keys = commandHashMap.keySet();
 
         for(String i: keys) {

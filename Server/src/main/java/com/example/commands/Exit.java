@@ -18,7 +18,7 @@ public class Exit implements Command {
         this.commandHashMap = commandHashMap;
     }
     public void execute() {}
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String passwordHash) {
+    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
         // commandHashMap.get("save").execute(new String[]{filename}, collectionManager, out);
         System.exit(0);
     }
