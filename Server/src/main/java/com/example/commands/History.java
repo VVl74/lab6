@@ -6,6 +6,7 @@ import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static java.lang.Math.max;
 /**
@@ -13,17 +14,20 @@ import static java.lang.Math.max;
  *
  */
 public class History implements Command {
-    ArrayList<String> history;
-    public History(ArrayList<String> commandHistory) {
+    ConcurrentLinkedDeque<String> history;
+    public History(ConcurrentLinkedDeque<String> commandHistory) {
         history = commandHistory;
     }
 
     @Override
     public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
-        for (int i = max(history.toArray().length - 14, 0); i < history.toArray().length; i++) {
-            out.println(history.get(i));
-        }
+        Object[] historyArray = history.toArray();
 
+        int start = Math.max(historyArray.length - 14, 0);
+
+        for (int i = start; i < historyArray.length; i++) {
+            out.println(historyArray[i]);
+        }
         out.println("история команд выведена\n");
     }
 

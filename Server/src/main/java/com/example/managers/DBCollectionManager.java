@@ -7,6 +7,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DBCollectionManager {
     private DBManager dbManager;
@@ -62,10 +63,10 @@ public class DBCollectionManager {
         }
     }
 
-    public HashMap<Integer, SpaceMarine> getCollection() {
+    public ConcurrentHashMap<Integer, SpaceMarine> getCollection() {
         String zapr = "SELECT * FROM space_marines";
 
-        HashMap<Integer, SpaceMarine> collection = new HashMap<>();
+        ConcurrentHashMap<Integer, SpaceMarine> collection = new ConcurrentHashMap<>();
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             ResultSet rs = przapr.executeQuery();
@@ -174,10 +175,10 @@ public class DBCollectionManager {
         }
     }
 
-    public HashMap<Integer, SpaceMarine> selectChapterLess(int count) {
+    public ConcurrentHashMap<Integer, SpaceMarine> selectChapterLess(int count) {
         String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count < ?";
 
-        HashMap<Integer, SpaceMarine> collection = new HashMap<>();
+        ConcurrentHashMap<Integer, SpaceMarine> collection = new ConcurrentHashMap<>();
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setInt(1, count);
@@ -260,10 +261,10 @@ public class DBCollectionManager {
         }
     }
 
-    public HashMap<Integer, SpaceMarine> selectChapterGreat(int count) {
+    public ConcurrentHashMap<Integer, SpaceMarine> selectChapterGreat(int count) {
         String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count > ?";
 
-        HashMap<Integer, SpaceMarine> collection = new  HashMap<>();
+        ConcurrentHashMap<Integer, SpaceMarine> collection = new  ConcurrentHashMap<>();
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setInt(1, count);

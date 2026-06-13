@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 /**
  * Ключевой класс приложения отвечающий за работу с командами
  * <p>
@@ -26,7 +28,7 @@ public class CommandManager {
     Logger logger = LoggerFactory.getLogger(CommandManager.class);
     public HashMap<String, Command> commandHashMap = new HashMap<>();
     public DBCollectionManager collectionManager;
-    ArrayList<String> commandHistory = new ArrayList<String>();
+    ConcurrentLinkedDeque<String> commandHistory = new ConcurrentLinkedDeque<String>();
 
     public CommandManager(DBCollectionManager newCollectionManager) {
         collectionManager = newCollectionManager;

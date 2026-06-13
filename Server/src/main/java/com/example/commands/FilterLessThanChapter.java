@@ -12,6 +12,8 @@ import com.example.utils.Parser;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Комманда для выведения всех элементов чей Chapter меньше заданного
  *
@@ -31,7 +33,7 @@ public class FilterLessThanChapter implements Command {
         }
 
 
-        HashMap<Integer, SpaceMarine> res = collectionManager.selectChapterLess((int) chapter.getMarinesCount());
+        ConcurrentHashMap<Integer, SpaceMarine> res = collectionManager.selectChapterLess((int) chapter.getMarinesCount());
 
 
         for (var v : res.values()) {

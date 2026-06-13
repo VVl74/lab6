@@ -13,6 +13,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Комманда для выведения всех элементов чей Chapter больше заданного
  *
@@ -31,7 +33,7 @@ public class FilterGreaterThanChapter implements Command {
             throw new InputExeption();
         }
 
-        HashMap<Integer, SpaceMarine> res = collectionManager.selectChapterGreat((int) chapter.getMarinesCount());
+        ConcurrentHashMap<Integer, SpaceMarine> res = collectionManager.selectChapterGreat((int) chapter.getMarinesCount());
 
 
         for (var v : res.values()) {
