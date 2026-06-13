@@ -12,23 +12,28 @@ public class DBCollectionManager {
     private DBManager dbManager;
     private Parser parser;
     private LocalDateTime timeinit;
+    private AutentManager autentManager;
 
     public DBCollectionManager(DBManager ndbManager) {
         dbManager = ndbManager;
         parser = new Parser();
         timeinit = LocalDateTime.now();
+        autentManager = new AutentManager();
     }
 
     public LocalDateTime getTimeinit() {
         return timeinit;
     }
 
-    public boolean registerUser(String username, String passwordHash) {
-        String zapr = "INSERT INTO users (login, password_hash) VALUES (?, ?)";
+    public boolean registerUser(String username, String password) {
+        String salt = autentManager.newSalt();
+        String passwordHash = autentManager.hashPassword(password, salt);
+        String zapr = "INSERT INTO users (login, password_hash, salt) VALUES (?, ?, ?)";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setString(1, username);
             przapr.setString(2, passwordHash);
+            przapr.setString(3, salt);
             przapr.executeUpdate();
             return true;
 
@@ -37,14 +42,20 @@ public class DBCollectionManager {
         }
     }
 
-    public boolean proverkUser(String username, String passwordHash) {
-        String zapr = "SELECT id FROM users WHERE login = ? AND password_hash = ?";
+    public boolean proverkUser(String username, String password) {
+        String zapr = "SELECT salt, password FROM users WHERE login = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setString(1, username);
-            przapr.setString(2, passwordHash);
             ResultSet rs = przapr.executeQuery();
-            return rs.next();
+            if (rs.next()) {
+                String salt = rs.getString("salt");
+                String passwordStor = rs.getString("password_hash");
+                String passwordHash = autentManager.hashPassword(password, salt);
+                return passwordHash.equals(passwordStor);
+            } else {
+                return false;
+            }
 
         } catch (SQLException e) {
             return false;
