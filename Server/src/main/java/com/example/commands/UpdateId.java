@@ -21,7 +21,7 @@ public class UpdateId implements Command {
         Parser parser = new Parser();
         SpaceMarine spacemar;
         try {
-            spacemar = parser.parsSpaceMarine(args);
+            spacemar = parser.parsSpaceMarine(args,  collectionManager.getUserId(login));
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;

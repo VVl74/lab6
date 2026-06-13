@@ -21,7 +21,7 @@ public class Insert implements Command {
         Parser parser = new Parser();
         SpaceMarine spacemar = null;
         try {
-            spacemar = parser.parsSpaceMarine(args);
+            spacemar = parser.parsSpaceMarine(args, collectionManager.getUserId(login));
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;

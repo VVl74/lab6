@@ -50,7 +50,7 @@ public class InputManager {
 
             if (TerArgs[0].equals("exit") || TerArgs[0].equals("save")) {
                 logger.info("команда выполнена");
-                curCommandManager.newCommand(TerArgs, out);
+                curCommandManager.newCommand(TerArgs, out, "admin", "admin");
                 System.out.println(bufStr.toString());
             } else {
                 logger.info("команда не выполнена");

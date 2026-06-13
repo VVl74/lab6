@@ -20,7 +20,7 @@ public class Parser {
      *      <li> возвращаем собранный элемент </li>
      *  </ol>
      */
-    public SpaceMarine parsSpaceMarine(String[] args) {
+    public SpaceMarine parsSpaceMarine(String[] args, int ownerid) {
         try {
             int nid = Integer.parseInt(args[0]);
             String name = args[1];
@@ -48,7 +48,7 @@ public class Parser {
 
             Chapter marinchapt = new Chapter(nchaptername, nparentlegion, marinescount, world);
 
-            SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt);
+            SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt, ownerid);
             return spacemar;
         } catch (Exception e) {
             throw new InputExeption();
@@ -99,7 +99,7 @@ public class Parser {
         SpaceMarine marine = new SpaceMarine(id, name, coords, creationDate, health, category, weapon, meleeWeapon, chapter, ownerId);
         return marine;
     }
-
+/*
     public SpaceMarine parseCSV(String str) {
         try {
             String[] elem = str.split(";");
@@ -160,4 +160,5 @@ public class Parser {
             throw new InputExeption();
         }
     }
+ */
 }

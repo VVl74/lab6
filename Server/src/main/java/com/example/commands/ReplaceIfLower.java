@@ -23,7 +23,7 @@ public class ReplaceIfLower implements Command {
 
         SpaceMarine spacemar;
         try {
-            spacemar = parser.parsSpaceMarine(args);
+            spacemar = parser.parsSpaceMarine(args,  collectionManager.getUserId(login));
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;

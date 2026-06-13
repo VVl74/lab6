@@ -19,6 +19,7 @@ import java.util.HashMap;
  *      <li> чтение команд из файла
  * </ul>
  */
+
 public class FileManager {
     Logger logger = LoggerFactory.getLogger(FileManager.class);
     private static int id = 1;
@@ -39,6 +40,7 @@ public class FileManager {
      *      <li> возвращаем мапу спейсмаринов </li>
      *  </ol>
      */
+    /*
     public HashMap<Integer, SpaceMarine> fileRead() throws FileNotFoundException {
         HashMap <Integer, SpaceMarine> spaceMarineHashMap = new HashMap<>();
 
