@@ -7,14 +7,23 @@ public class ClientEngine {
     InpOutFactory factory;
     ServerManagerInterface serverManager;
     Reader reader;
+    String login;
+    String passwordHash;
 
-    public ClientEngine(ServerManagerInterface newServerManager) {
+    public ClientEngine(ServerManagerInterface newServerManager, String newlogin, String newpasswordHash) {
         factory = new InpOutFactory();
         serverManager = newServerManager;
         reader = new Reader();
+        // login = newlogin;
+        // passwordHash = newpasswordHash;
     }
 
     public void run() throws IOException {
+        System.out.print("Enter your login: ");
+        reader.readLine();
+
+        System.out.print("Enter your password: ");
+        reader.readLine();
         while (true) {
             try {
                 String input = reader.readLine();
@@ -22,15 +31,15 @@ public class ClientEngine {
                 if (input == null) {
                     continue;
                 }
-                processing(input);
+                processing(input, login, passwordHash);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
     }
 
-    private void processing(String input) throws IOException {
-        ByteBuffer sendBuf = factory.OutputFactory(input);
+    private void processing(String input, String login, String passwordHash) throws IOException {
+        ByteBuffer sendBuf = factory.OutputFactory(input, login, passwordHash);
         try {
             serverManager.send(sendBuf);
 

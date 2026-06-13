@@ -15,7 +15,7 @@ public class InpOutFactory {
         utils = new WrapperUtils(31);
     }
 
-    public ByteBuffer OutputFactory(String input) throws JsonProcessingException {
+    public ByteBuffer OutputFactory(String input, String login, String passwordHash) throws JsonProcessingException {
         input = input.trim();
 
         if (input.equals("exit")) {
@@ -26,7 +26,7 @@ public class InpOutFactory {
         int sum = utils.getControlSum(input);
         int hash = utils.makeHash(input);
 
-        outWrap.setZapr(input, sum, hash);
+        outWrap.setZapr(input, sum, hash, login, passwordHash);
 
         byte[] jsonByte = mapper.writeValueAsBytes(outWrap);
 

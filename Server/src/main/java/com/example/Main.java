@@ -50,6 +50,8 @@ public class Main {
         DBManager dbManager = new DBManager();
         DBCollectionManager collectionManager = new DBCollectionManager(dbManager);
 
+
+
         CommandManager curCommandManager = new CommandManager(collectionManager);
 
         ServerManager servChannel = new ServerManager(12345);

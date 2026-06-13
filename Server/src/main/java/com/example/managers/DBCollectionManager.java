@@ -346,4 +346,33 @@ public class DBCollectionManager {
         statement.executeUpdate(createSpace);
         statement.executeUpdate(createUsers);
     }
+
+
+
+
+
+    ArrayList<String> scriptPul = new ArrayList<String>();
+
+    /**
+     * Метод добавления скрипта
+     */
+    public void scriptInsert(String a) {
+        scriptPul.add(a);
+    }
+    /**
+     * Метод удаления элемента
+     */
+    public void scriptRemove(String a) {
+        scriptPul.remove(a);
+    }
+    /**
+     * Метод проверяющий содержится ли скрипт в текущем скриптпуле
+     */
+    public Boolean scriptIf(String a) {
+        if (scriptPul.contains(a)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 }

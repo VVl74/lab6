@@ -28,7 +28,10 @@ public class CommandManager {
     public DBCollectionManager collectionManager;
     ArrayList<String> commandHistory = new ArrayList<String>();
 
-    public CommandManager(DBCollectionManager newCollectionManager) {
+    String login;
+    String passwordHash;
+
+    public CommandManager(DBCollectionManager newCollectionManager, String nlogin, String npasswordHash) {
         collectionManager = newCollectionManager;
         commandHashMap.put("help", new Help(commandHashMap));
         commandHashMap.put("info", new Info());
@@ -40,12 +43,15 @@ public class CommandManager {
         commandHashMap.put("update", new UpdateId());
         commandHashMap.put("remove_key", new RemoveKey());
         commandHashMap.put("execute_script", new ExecuteScriptFileName());
-        commandHashMap.put("save", new Save());
+        // commandHashMap.put("save", new Save());
         commandHashMap.put("replace_if_lowe", new ReplaceIfLower());
         commandHashMap.put("remove_lower_key", new RemoveLowerKey());
         commandHashMap.put("count_less_than_health", new CountLessThanHealth());
         commandHashMap.put("filter_less_than_chapter", new FilterLessThanChapter());
         commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter());
+
+        login = nlogin;
+        passwordHash = npasswordHash;
     }
 
     /**
@@ -71,7 +77,7 @@ public class CommandManager {
             try {
                 logger.info("команда выполняется");
 
-                commandHashMap.get(com).execute(commandArgs, collectionManager, out);
+                commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, passwordHash);
             } catch (ArgExeption e) {
                 logger.info("ошибка, команда не выполнена");
                 out.println("Ошибка, команда не выполнена");

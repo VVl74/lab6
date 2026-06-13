@@ -5,15 +5,19 @@ public class Wrapper {
     private long otpravTime;
     private int controlSum;
     private int hash;
+    private String login;
+    private String password;
 
     public Wrapper() {
         otpravTime = System.currentTimeMillis();
     }
 
-    public void setZapr(String nzapr, int newcontrolsum, int newhash) {
+    public void setZapr(String nzapr, int newcontrolsum, int newhash, String nlogin, String npassword) {
         zapr = nzapr;
         controlSum = newcontrolsum;
         hash = newhash;
+        login = nlogin;
+        password = npassword;
     }
 
     public String getZapr() {
@@ -29,5 +33,12 @@ public class Wrapper {
 
     public long getOtpravTime() {
         return otpravTime;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+    public String getPassword() {
+        return password;
     }
 }

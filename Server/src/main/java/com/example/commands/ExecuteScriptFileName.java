@@ -5,6 +5,7 @@ import com.example.exeptions.ArgExeption;
 import com.example.exeptions.RecursExeption;
 import com.example.managers.CollectionManager;
 import com.example.managers.CommandManager;
+import com.example.managers.DBCollectionManager;
 import com.example.managers.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 
 public class ExecuteScriptFileName implements Command {
 
-    public void execute(String[] args, DBCollectionManager collection, PrintWriter out) {
+    public void execute(String[] args, DBCollectionManager collection, PrintWriter out, String login, String passwordHash) {
         Logger logger = LoggerFactory.getLogger(ExecuteScriptFileName.class);
         if (args.length > 1 || args.length == 0) {
             throw  new ArgExeption();
