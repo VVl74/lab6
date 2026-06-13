@@ -46,7 +46,7 @@ public class ExecuteScriptFileName implements Command {
             logger.info("имя файла неверно или файл не читаем");
         }
 
-        CommandManager commandManager = new CommandManager(collection);
+        CommandManager commandManager = new CommandManager(collection, login, pasword);
 
         if (commands != null) {
             for (String i : commands) {
