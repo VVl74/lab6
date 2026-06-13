@@ -18,12 +18,12 @@ public class PackFactory {
         utils = new WrapperUtils(31);
     }
 
-    public OutputPack BuildPack(SocketAddress client, CommandManager curCommandManager, String[] parts) {
+    public OutputPack BuildPack(SocketAddress client, CommandManager curCommandManager, String[] parts, String login, String password) {
         ByteArrayOutputStream bufStream = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(bufStream, true);
 
         if (!parts[0].equals("exit") && !parts[0].equals("save")) {
-            curCommandManager.newCommand(parts, out);
+            curCommandManager.newCommand(parts, out, login, password);
         }
 
         out.flush();
@@ -41,7 +41,7 @@ public class PackFactory {
         Wrapper res = new Wrapper();
         int sum = utils.getControlSum(prStr);
         int hash = utils.makeHash(prStr);
-        res.setZapr(prStr, sum, hash);
+        res.setZapr(prStr, sum, hash, "", "");
 
         byte[] jsonByte;
 

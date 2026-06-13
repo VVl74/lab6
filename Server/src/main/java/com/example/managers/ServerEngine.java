@@ -43,12 +43,14 @@ public class ServerEngine {
     private void processing(InputPack pack) throws IOException {
         ParsedRequest parsedRequest = deserializer.deserialize(pack);
         String[] parts = parsedRequest.getParts();
+        String login = parsedRequest.getLogin();
+        String password = parsedRequest.getPassword();
 
         if (parts == null) {
             return;
         }
 
-        OutputPack outPack = packFactory.BuildPack(pack.client, commandManager, parts);
+        OutputPack outPack = packFactory.BuildPack(pack.client, commandManager, parts, login, password);
 
         servChannel.send(outPack);
 

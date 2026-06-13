@@ -28,10 +28,7 @@ public class CommandManager {
     public DBCollectionManager collectionManager;
     ArrayList<String> commandHistory = new ArrayList<String>();
 
-    String login;
-    String password;
-
-    public CommandManager(DBCollectionManager newCollectionManager, String nlogin, String npasswordHash) {
+    public CommandManager(DBCollectionManager newCollectionManager) {
         collectionManager = newCollectionManager;
         commandHashMap.put("help", new Help(commandHashMap));
         commandHashMap.put("info", new Info());
@@ -42,16 +39,15 @@ public class CommandManager {
         commandHashMap.put("insert", new Insert());
         commandHashMap.put("update", new UpdateId());
         commandHashMap.put("remove_key", new RemoveKey());
-        commandHashMap.put("execute_script", new ExecuteScriptFileName());
+        ExecuteScriptFileName executeScriptFileName = new ExecuteScriptFileName();
+        executeScriptFileName.parentComManger(this);
+        commandHashMap.put("execute_script", executeScriptFileName);
         // commandHashMap.put("save", new Save());
         commandHashMap.put("replace_if_lowe", new ReplaceIfLower());
         commandHashMap.put("remove_lower_key", new RemoveLowerKey());
         commandHashMap.put("count_less_than_health", new CountLessThanHealth());
         commandHashMap.put("filter_less_than_chapter", new FilterLessThanChapter());
         commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter());
-
-        login = nlogin;
-        password = npasswordHash;
     }
 
     /**
@@ -66,7 +62,7 @@ public class CommandManager {
      *      <li> Добавление вызванной команды в историю </li>
      * </ul>
      */
-    public void newCommand(String[] args, PrintWriter out) {
+    public void newCommand(String[] args, PrintWriter out, String login, String password) {
         PrintStream old =System.out;
 
         String com = args[0];
@@ -78,10 +74,12 @@ public class CommandManager {
                 logger.info("команда выполняется");
                 if (com == "register") {
                     commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
+                    commandHistory.add(com);
                     return;
                 }
                 if (collectionManager.proverkUser(login, password)) {
                     commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
+                    commandHistory.add(com);
                     return;
                 } else {
                     out.println("Ошибка, неверный логин или пароль");
@@ -90,7 +88,7 @@ public class CommandManager {
                 logger.info("ошибка, команда не выполнена");
                 out.println("Ошибка, команда не выполнена");
             }
-            commandHistory.add(com);
+            // commandHistory.add(com);
         } else {
             logger.info("неизвестная команда");
             out.println("неизвестная команда");

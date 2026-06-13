@@ -19,6 +19,11 @@ import java.util.ArrayList;
  */
 
 public class ExecuteScriptFileName implements Command {
+    private CommandManager commandManager;
+
+    public void parentComManger(CommandManager commandManager) {
+        this.commandManager = commandManager;
+    }
 
     public void execute(String[] args, DBCollectionManager collection, PrintWriter out, String login, String pasword) {
         Logger logger = LoggerFactory.getLogger(ExecuteScriptFileName.class);
@@ -46,12 +51,12 @@ public class ExecuteScriptFileName implements Command {
             logger.info("имя файла неверно или файл не читаем");
         }
 
-        CommandManager commandManager = new CommandManager(collection, login, pasword);
+        // CommandManager commandManager = new CommandManager(collection, login, pasword);
 
         if (commands != null) {
             for (String i : commands) {
                 String[] newArgs = i.split(" ");
-                commandManager.newCommand(newArgs, out);
+                commandManager.newCommand(newArgs, out, login, pasword);
             }
             collection.scriptRemove(filename);
         }
