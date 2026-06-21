@@ -47,6 +47,9 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
     public String getName() {
         return name;
     }
+    public void setId(int nid) {
+        id = nid;
+    }
     public Coordinates getCoordinates() {
         return coordinates;
     }

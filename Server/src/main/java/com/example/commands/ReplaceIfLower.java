@@ -20,17 +20,22 @@ public class ReplaceIfLower implements Command {
             // System.out.println("Неверный ввод данных");
         }
         Parser parser = new Parser();
+        int ownerId = collectionManager.getUserId(login);
 
         SpaceMarine spacemar;
         try {
-            spacemar = parser.parsSpaceMarine(args,  collectionManager.getUserId(login));
+            spacemar = parser.parsSpaceMarine(args, ownerId);
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;
         }
 
         try {
-            collectionManager.updateLessHelth(spacemar.getId(), spacemar, collectionManager.getUserId(login));
+            if (collectionManager.updateLessHelth(spacemar.getId(), spacemar, ownerId)) {
+                out.println("элемент заменен\n");
+            } else {
+                out.println("элемент не заменен\n");
+            }
         } catch (SQLException e) {
             out.println("запрос не удался");
             return;

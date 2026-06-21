@@ -6,7 +6,6 @@ import com.example.utils.Parser;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DBCollectionManager {
@@ -14,6 +13,8 @@ public class DBCollectionManager {
     private Parser parser;
     private LocalDateTime timeinit;
     private AutentManager autentManager;
+
+    private final ConcurrentHashMap<Integer, SpaceMarine> collection = new ConcurrentHashMap<>(); //  коллекция в оперативной память
 
     public DBCollectionManager(DBManager ndbManager) {
         dbManager = ndbManager;
@@ -26,7 +27,31 @@ public class DBCollectionManager {
         return timeinit;
     }
 
-    public boolean registerUser(String username, String password) {
+
+    /**
+     * Метод для загрузки коллекции в оперативную память
+     *
+     */
+    public synchronized void loadCollection() {
+        String zapr = "SELECT * FROM space_marines";
+
+        try (PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
+            ResultSet rs = przapr.executeQuery();
+            collection.clear();
+            while (rs.next()) {
+                SpaceMarine marine = parser.parseSQLMarine(rs);
+                collection.put(marine.getId(), marine);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Метод для регистрации нового пользователя в БД
+     *
+     */
+    public synchronized boolean registerUser(String username, String password) {
         String salt = autentManager.newSalt();
         String passwordHash = autentManager.hashPassword(password, salt);
         String zapr = "INSERT INTO users (login, password_hash, salt) VALUES (?, ?, ?)";
@@ -43,7 +68,11 @@ public class DBCollectionManager {
         }
     }
 
-    public boolean proverkUser(String username, String password) {
+    /**
+     * Метод для проверки корректности введенных данных от пользователя
+     *
+     */
+    public synchronized boolean proverkUser(String username, String password) {
         String zapr = "SELECT salt, password FROM users WHERE login = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
@@ -63,30 +92,24 @@ public class DBCollectionManager {
         }
     }
 
+    /**
+     * Команда возвращает коллекцию из памяти
+     *
+     */
     public ConcurrentHashMap<Integer, SpaceMarine> getCollection() {
-        String zapr = "SELECT * FROM space_marines";
-
-        ConcurrentHashMap<Integer, SpaceMarine> collection = new ConcurrentHashMap<>();
-
-        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
-            ResultSet rs = przapr.executeQuery();
-            while(rs.next()) {
-                SpaceMarine marine = parser.parseSQLMarine(rs);
-                collection.put(marine.getId(), marine);
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
         return collection;
     }
 
-    public boolean insertMarine(SpaceMarine marine, int ownerId) {
+    /**
+     * Метод для добавления новых десантников в БД
+     *
+     */
+    public synchronized boolean insertMarine(SpaceMarine marine, int ownerId) {
         String zapr = "INSERT INTO space_marines (" +
                 "name, X, Y, datetime, health, category, " +
                 "weapontype, meleeweapon, chapter_name, chapter_parent_legion, " +
                 "chapter_marines_count, chapter_world, owner_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setString(1, marine.getName());
@@ -102,16 +125,26 @@ public class DBCollectionManager {
             przapr.setLong(11, marine.getChapter().getMarinesCount());
             przapr.setString(12, marine.getChapter().getWorld());
             przapr.setInt(13, ownerId);
-            przapr.executeUpdate();
 
-            return true;
+            ResultSet rs = przapr.executeQuery();
+            if (rs.next()) {
+                int newId = rs.getInt("id");
+                marine.setId(newId);
+                collection.put(newId, marine);
+                return true;
+            }
+            return false;
 
         } catch (SQLException e) {
             return false;
         }
     }
 
-    public boolean removeMarine(int id, int ownerId) {
+    /**
+     * Метод для удаления десантника из БД
+     *
+     */
+    public synchronized boolean removeMarine(int id, int ownerId) {
         String zapr = "DELETE FROM space_marines WHERE id = ? AND owner_id = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
@@ -119,14 +152,18 @@ public class DBCollectionManager {
             przapr.setInt(2, ownerId);
             int del = przapr.executeUpdate();
 
-            return del > 0;
+            if (del > 0) {
+                collection.remove(id);   // память обновляем только после успешного удаления из БД
+                return true;
+            }
+            return false;
 
         } catch (SQLException e) {
             return false;
         }
     }
 
-    public int getUserId(String name) {
+    public synchronized int getUserId(String name) {
         String zapr = "SELECT id FROM users WHERE login = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
@@ -145,7 +182,7 @@ public class DBCollectionManager {
         }
     }
 
-    public int removeLowerKeyMarine(int id, int ownerId) {
+    public synchronized int removeLowerKeyMarine(int id, int ownerId) {
         String zapr = "DELETE FROM space_marines WHERE id < ? AND owner_id = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
@@ -153,6 +190,11 @@ public class DBCollectionManager {
             przapr.setInt(2, ownerId);
             int del = przapr.executeUpdate();
 
+            if (del > 0) {
+                // удаляем из памяти те же элементы, что были удалены из БД
+                collection.values().removeIf(m -> m.getId() < id && m.getOwnerId() == ownerId);
+            }
+
             return del;
 
         } catch (SQLException e) {
@@ -160,7 +202,7 @@ public class DBCollectionManager {
         }
     }
 
-    public int removeAll(int ownerId) {
+    public synchronized int removeAll(int ownerId) {
         String zapr = "DELETE FROM space_marines WHERE owner_id = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
@@ -168,6 +210,10 @@ public class DBCollectionManager {
 
             int del = przapr.executeUpdate();
 
+            if (del > 0) {
+                collection.values().removeIf(m -> m.getOwnerId() == ownerId);
+            }
+
             return del;
 
         } catch (SQLException e) {
@@ -175,30 +221,20 @@ public class DBCollectionManager {
         }
     }
 
+    // Команда получения данных: фильтрация по коллекции в памяти
     public ConcurrentHashMap<Integer, SpaceMarine> selectChapterLess(int count) {
-        String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count < ?";
+        ConcurrentHashMap<Integer, SpaceMarine> res = new ConcurrentHashMap<>();
 
-        ConcurrentHashMap<Integer, SpaceMarine> collection = new ConcurrentHashMap<>();
-
-        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
-            przapr.setInt(1, count);
-
-            ResultSet rs = przapr.executeQuery();
-
-            while(rs.next()) {
-                SpaceMarine marine = parser.parseSQLMarine(rs);
-                collection.put(marine.getId(), marine);
+        for (SpaceMarine marine : collection.values()) {
+            if (marine.getChapter().getMarinesCount() < count) {
+                res.put(marine.getId(), marine);
             }
-
-
-            return collection;
-
-        } catch (SQLException e) {
-            return collection;
         }
+
+        return res;
     }
 
-    public boolean updateMarine(int id, SpaceMarine marine, int ownerId) throws SQLException {
+    public synchronized boolean updateMarine(int id, SpaceMarine marine, int ownerId) throws SQLException {
         String sql = "UPDATE space_marines SET " +
                 "name = ?, X = ?, Y = ?, datetime = ?, health = ?, category = ?, " +
                 "weapontype = ?, meleeweapon = ?, chapter_name = ?, chapter_parent_legion = ?, " +
@@ -221,70 +257,45 @@ public class DBCollectionManager {
             ps.setInt(13, id);
             ps.setInt(14, ownerId);
 
-            return ps.executeUpdate() > 0;
+            if (ps.executeUpdate() > 0) {
+                marine.setId(id);
+                collection.put(id, marine);   // память обновляем только после успешного обновления в БД
+                return true;
+            }
+            return false;
         }
     }
 
+    // Команда получения данных: подсчёт по коллекции в памяти
     public int countLessHealth(double health) {
-        String zapr = "SELECT COUNT(*) FROM space_marines WHERE health < ?";
-
-        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
-            przapr.setDouble(1, health);
-
-            ResultSet del = przapr.executeQuery();
-
-            if (del.next()) {
-                return del.getInt(1);
-            } else {
-                return 0;
+        int count = 0;
+        for (SpaceMarine marine : collection.values()) {
+            if (marine.getHealth() < health) {
+                count++;
             }
-
-        } catch (SQLException e) {
-            return 0;
         }
+        return count;
     }
 
+    // Команда получения данных: количество элементов в памяти
     public int countElement() {
-        String zapr = "SELECT COUNT(*) FROM space_marines";
-
-        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
-            ResultSet del = przapr.executeQuery();
-
-            if (del.next()) {
-                return del.getInt(1);
-            } else {
-                return 0;
-            }
-
-        } catch (SQLException e) {
-            return 0;
-        }
+        return collection.size();
     }
 
+    // Команда получения данных: фильтрация по коллекции в памяти
     public ConcurrentHashMap<Integer, SpaceMarine> selectChapterGreat(int count) {
-        String zapr = "SELECT * FROM space_marines WHERE chapter_marines_count > ?";
+        ConcurrentHashMap<Integer, SpaceMarine> res = new ConcurrentHashMap<>();
 
-        ConcurrentHashMap<Integer, SpaceMarine> collection = new  ConcurrentHashMap<>();
-
-        try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
-            przapr.setInt(1, count);
-
-            ResultSet rs = przapr.executeQuery();
-
-            while(rs.next()) {
-                SpaceMarine marine = parser.parseSQLMarine(rs);
-                collection.put(marine.getId(), marine);
+        for (SpaceMarine marine : collection.values()) {
+            if (marine.getChapter().getMarinesCount() > count) {
+                res.put(marine.getId(), marine);
             }
-
-
-            return collection;
-
-        } catch (SQLException e) {
-            return collection;
         }
+
+        return res;
     }
 
-    public boolean updateLessHelth(int id, SpaceMarine marine, int ownerId) throws SQLException {
+    public synchronized boolean updateLessHelth(int id, SpaceMarine marine, int ownerId) throws SQLException {
         String sql = "UPDATE space_marines SET " +
                 "name = ?, X = ?, Y = ?, datetime = ?, health = ?, category = ?, " +
                 "weapontype = ?, meleeweapon = ?, chapter_name = ?, chapter_parent_legion = ?, " +
@@ -308,7 +319,12 @@ public class DBCollectionManager {
             ps.setInt(14, ownerId);
             ps.setDouble(15, marine.getHealth());
 
-            return ps.executeUpdate() > 0;
+            if (ps.executeUpdate() > 0) {
+                marine.setId(id);
+                collection.put(id, marine);
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             return false;
         }
@@ -316,50 +332,48 @@ public class DBCollectionManager {
 
 
 
-    public void InitTable() throws SQLException {
-        String dropcat = "DROP TYPE IF EXISTS astartes_category";
-        String dropweap = "DROP TYPE IF EXISTS weapon_type";
-        String dropmelee = "DROP TYPE IF EXISTS melee_weapon_type";
-
-        String category = "CREATE TYPE astartes_category AS ENUM ('ASSAULT', 'TACTICAL', 'HELIX')";
-        String weapon = "CREATE TYPE weapon_type AS ENUM ('BOLTGUN', 'MELTAGUN', 'FLAMER', 'HEAVY_FLAMER')";
-        String melee = "CREATE TYPE melee_weapon_type AS ENUM ('CHAIN_SWORD', 'POWER_SWORD', 'CHAIN_AXE', 'MANREAPER', 'POWER_FIST')";
-
-        String createSpace = "CREATE TABLE IF NOT EXISTS space_marines (" +
-                "id SERIAL PRIMARY KEY NOT NULL, " +
-                "name TEXT NOT NULL, " +
-                "X INTEGER NOT NULL, " +
-                "Y INTEGER NOT NULL, " +
-                "datetime TIMESTAMP NOT NULL," +
-                "health DOUBLE NOT NULL," +
-                "category ENUM('ASSAULT', 'TACTICAL', 'HELIX') DEFAULT 'ASSAULT' NOT NULL," +
-                "weapontype ENUM('BOLTGUN', 'MELTAGUN', 'FLAMER', 'HEAVY_FLAMER') NOT NULL," +
-                "meleeweapon ENUM('CHAIN_SWORD', 'POWER_SWORD', 'CHAIN_AXE', 'MANREAPER', 'POWER_FIST') NOT NULL," +
-                "chapter_name TEXT NOT NULL, " +
-                "chapter_parent_legion TEXT NOT NULL," +
-                "chapter_marines_count INTEGER NOT NULL CHECK (chapter_marines_count > 0 AND chapter_marines_count <= 1000), " +
-                "chapter_world TEXT NOT NULL, " +
-                "owner_id INTEGER REFERENCES users(id)) ON DELETE CASCADE;";
+    public synchronized void InitTable() throws SQLException {
+        String category = "DO $$ BEGIN " +
+                "CREATE TYPE astartes_category AS ENUM ('ASSAULT', 'TACTICAL', 'HELIX'); " +
+                "EXCEPTION WHEN duplicate_object THEN null; END $$;";
+        String weapon = "DO $$ BEGIN " +
+                "CREATE TYPE weapon_type AS ENUM ('BOLTGUN', 'MELTAGUN', 'FLAMER', 'HEAVY_FLAMER'); " +
+                "EXCEPTION WHEN duplicate_object THEN null; END $$;";
+        String melee = "DO $$ BEGIN " +
+                "CREATE TYPE melee_weapon_type AS ENUM ('CHAIN_SWORD', 'POWER_SWORD', 'CHAIN_AXE', 'MANREAPER', 'POWER_FIST'); " +
+                "EXCEPTION WHEN duplicate_object THEN null; END $$;";
 
         String createUsers = "CREATE TABLE IF NOT EXISTS users (" +
                 "id SERIAL PRIMARY KEY, " +
                 "login TEXT UNIQUE NOT NULL, " +
                 "password_hash TEXT NOT NULL, " +
-                "salt TEXT NOT NULL );";
-        Statement statement = dbManager.getConnection().createStatement();
+                "salt TEXT NOT NULL);";
 
-        statement.executeUpdate(dropcat);
-        statement.executeUpdate(dropweap);
-        statement.executeUpdate(dropmelee);
+        String createSpace = "CREATE TABLE IF NOT EXISTS space_marines (" +
+                "id SERIAL PRIMARY KEY, " +
+                "name TEXT NOT NULL, " +
+                "X INTEGER NOT NULL, " +
+                "Y BIGINT NOT NULL, " +
+                "datetime TIMESTAMP NOT NULL, " +
+                "health DOUBLE PRECISION NOT NULL, " +
+                "category astartes_category NOT NULL DEFAULT 'ASSAULT', " +
+                "weapontype weapon_type, " +
+                "meleeweapon melee_weapon_type NOT NULL, " +
+                "chapter_name TEXT NOT NULL, " +
+                "chapter_parent_legion TEXT NOT NULL, " +
+                "chapter_marines_count INTEGER NOT NULL CHECK (chapter_marines_count > 0 AND chapter_marines_count <= 1000), " +
+                "chapter_world TEXT NOT NULL, " +
+                "owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE);";
+
+        Statement statement = dbManager.getConnection().createStatement();
 
         statement.executeUpdate(category);
         statement.executeUpdate(weapon);
         statement.executeUpdate(melee);
 
-        statement.executeUpdate(createSpace);
         statement.executeUpdate(createUsers);
+        statement.executeUpdate(createSpace);
     }
-
 
 
 
@@ -369,19 +383,19 @@ public class DBCollectionManager {
     /**
      * Метод добавления скрипта
      */
-    public void scriptInsert(String a) {
+    public synchronized void scriptInsert(String a) {
         scriptPul.add(a);
     }
     /**
      * Метод удаления элемента
      */
-    public void scriptRemove(String a) {
+    public synchronized void scriptRemove(String a) {
         scriptPul.remove(a);
     }
     /**
      * Метод проверяющий содержится ли скрипт в текущем скриптпуле
      */
-    public Boolean scriptIf(String a) {
+    public synchronized Boolean scriptIf(String a) {
         if (scriptPul.contains(a)) {
             return Boolean.TRUE;
         } else {

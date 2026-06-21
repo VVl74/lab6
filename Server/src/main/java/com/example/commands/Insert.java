@@ -19,18 +19,20 @@ public class Insert implements Command {
             //System.out.println("неверное число аргументов " + args.length);
         }
         Parser parser = new Parser();
+        int ownerId = collectionManager.getUserId(login);
         SpaceMarine spacemar = null;
         try {
-            spacemar = parser.parsSpaceMarine(args, collectionManager.getUserId(login));
+            spacemar = parser.parsSpaceMarine(args, ownerId);
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;
         }
 
-        collectionManager.insertMarine(spacemar, collectionManager.getUserId(login));
-        // collectionManager.inputElement(spacemar);
-
-        out.println("элемент добавлен\n");
+        if (collectionManager.insertMarine(spacemar, ownerId)) {
+            out.println("элемент добавлен\n");
+        } else {
+            out.println("не удалось добавить элемент\n");
+        }
     }
     public String getComandInfo() {
         // insert 500 Ultramarine 12.5 7 150 ASSAULT BOLTGUN CHAIN_SWORD Ultramar Guilliman 500 Macragge

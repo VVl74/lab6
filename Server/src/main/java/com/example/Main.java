@@ -1,56 +1,37 @@
 package com.example;
 
-import com.example.collection.SpaceMarine;
 import com.example.managers.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 /**
- * Главный класс приложения отвечающий за запуск работы с коллекциями
+ * Главный класс приложения отвечающий за запуск сервера
  * <p>
  *  Функции класса
  *  <ul>
- *      <li> Чтение коллекции с помощью файл менеджера </li>
- *      <li> Создание коллекшн менеджера и запуск работы с коллекцией </li>
- *      <li> Обработка пользовательских комманд </li>
- *      <li> Обработка некоторых ошибок </li>
+ *      <li> Подключение к базе данных </li>
+ *      <li> Создание коллекшн менеджера и команд менеджера </li>
+ *      <li> Запуск сервера для обработки запросов клиентов </li>
  * </ul>
  */
 public class Main {
     /**
      * Начало программы
      *  <ol>
-     *      <li> Получаем имя файла </li>
-     *      <li> Считываем коллекцию </li>
+     *      <li> Подключаемся к базе данных </li>
      *      <li> Создаем коллекшн менеджер и команд менеджер </li>
-     *      <li> Запускаем режим интерактивной работы с коллекцией </li>
+     *      <li> Загружаем коллекцию из БД в оперативную память </li>
+     *      <li> Запускаем сервер </li>
      *  </ol>
      */
     public static void main(String[] args) throws IOException, SQLException {
-        Logger logger = LoggerFactory.getLogger(Main.class);
-        String filename = "data.csv";
-
-        FileManager fileManager = new FileManager();
-
-        fileManager.setFilename(filename);
-
-        HashMap <Integer, SpaceMarine> newCollection = new HashMap<>();
-
-        try {
-            newCollection = fileManager.fileRead();
-        } catch (Exception e) {
-            logger.info("не удалось прочитать файл");
-        }
-
-        //CollectionManager collectionManager = new CollectionManager(newCollection);
         DBManager dbManager = new DBManager();
+        dbManager.connect();
+
         DBCollectionManager collectionManager = new DBCollectionManager(dbManager);
-
-
+        collectionManager.InitTable();
+        collectionManager.loadCollection();
 
         CommandManager curCommandManager = new CommandManager(collectionManager);
 

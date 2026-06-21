@@ -27,7 +27,10 @@ public class DBManager {
         return instance;
     }
 
-    // Подключение к базе данных
+    /**
+     * Команда для подключения к базе данных
+     *
+     */
     public void connect() throws SQLException {
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(URL, USER, PASSWD);
@@ -35,7 +38,10 @@ public class DBManager {
         }
     }
 
-    // Отключение от базы данных
+    /**
+     * Команда для отключения от базы данных
+     *
+     */
     public void disconect() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
@@ -43,26 +49,37 @@ public class DBManager {
         }
     }
 
-    // Выполнение QUERY-запроса
+    /**
+     * Метод для выполнения SQL-query запроса
+     *
+     */
     public ResultSet executeQuery(String sql) throws SQLException {
         Statement statement = connection.createStatement();
 
         return statement.executeQuery(sql);
     }
 
-    // Выполнение update-запроса
+    /**
+     * Метод для выполнения SQL-update запроса
+     *
+     */
     public int executeUpdate(String sql) throws SQLException {
         Statement statement = connection.createStatement();
 
         return statement.executeUpdate(sql);
     }
 
-    // Подготовка запроса (Там на метоните было написано про это но чет лень было читать, думаю, пусть будет)
+    /**
+     * Метод для подготовки выполнения запроса
+     *
+     */
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return connection.prepareStatement(sql);
     }
 
-    // Возвращает наше подключение, пока хз зачем, но идешка сказала что нужно
+    /**
+     * Метод для получения текущего соединения с БД
+     */
     public Connection getConnection() {
         return connection;
     }

@@ -19,22 +19,24 @@ public class UpdateId implements Command {
             throw new ArgExeption();
         }
         Parser parser = new Parser();
+        int ownerId = collectionManager.getUserId(login);
         SpaceMarine spacemar;
         try {
-            spacemar = parser.parsSpaceMarine(args,  collectionManager.getUserId(login));
+            spacemar = parser.parsSpaceMarine(args, ownerId);
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;
         }
 
         try {
-            collectionManager.updateMarine(spacemar.getId(), spacemar, collectionManager.getUserId(login));
+            if (collectionManager.updateMarine(spacemar.getId(), spacemar, ownerId)) {
+                out.println("элемент обновлен\n");
+            } else {
+                out.println("элемент не найден или принадлежит другому пользователю\n");
+            }
         } catch (SQLException e) {
             out.println("выполнить запрос не удалось");
         }
-        // collectionManager.swapElement(spacemar, spacemar.getId());
-
-        out.println("элемент обновлен\n");
     }
     public String getComandInfo() {
         return "update id {element} : обновить значение элемента коллекции," +
