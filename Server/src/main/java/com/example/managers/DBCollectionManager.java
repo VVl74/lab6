@@ -117,9 +117,9 @@ public class DBCollectionManager {
             przapr.setLong(3, marine.getCoordinates().getY());
             przapr.setTimestamp(4, Timestamp.valueOf(marine.spaceGetTime()));
             przapr.setDouble(5, marine.getHealth());
-            przapr.setString(6, marine.getCategory().toString());
-            przapr.setString(7, marine.getWeaponType().toString());
-            przapr.setString(8, marine.getMeleeWeapon().toString());
+            przapr.setObject(6, marine.getCategory().toString(), java.sql.Types.OTHER);
+            przapr.setObject(7, marine.getWeaponType().toString(), java.sql.Types.OTHER);
+            przapr.setObject(8, marine.getMeleeWeapon().toString(), java.sql.Types.OTHER);
             przapr.setString(9, marine.getChapter().getName());
             przapr.setString(10, marine.getChapter().getParentLegion());
             przapr.setLong(11, marine.getChapter().getMarinesCount());

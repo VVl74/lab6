@@ -24,7 +24,7 @@ public class Show implements Command {
 
 
         for (var v: nmarines) {
-            System.out.println(v);
+            out.println(v);
         }
 
         out.println("элементы коллекции выведены\n");
