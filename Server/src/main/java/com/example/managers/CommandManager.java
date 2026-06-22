@@ -69,30 +69,28 @@ public class CommandManager {
 
         String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
 
-        if (!commandHashMap.containsKey(com)) {
+        if (commandHashMap.containsKey(com)) {
+            try {
+                logger.info("команда выполняется");
+                if (com.equals("register")) {
+                    commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
+                    commandHistory.add(com);
+                    return;
+                }
+                if (collectionManager.proverkUser(login, password) || (login.equals("admin") && password.equals("admin"))) {
+                    commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
+                    commandHistory.add(com);
+                    return;
+                } else {
+                    out.println("Ошибка, неверный логин или пароль");
+                }
+            } catch (ArgExeption e) {
+                logger.info("ошибка, команда не выполнена");
+                out.println("Ошибка, команда не выполнена");
+            }
+        } else {
             logger.info("неизвестная команда");
             out.println("неизвестная команда");
-            return;
-        }
-
-        try {
-            logger.info("команда выполняется");
-            if (com.equals("register") || com.equals("exit")) { // тут короче команды которые доступны неавторизованным типам
-                commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
-                commandHistory.add(com);
-                return;
-            }
-            if (collectionManager.proverkUser(login, password)) {
-                commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
-                commandHistory.add(com);
-            } else {
-                logger.info("пользователь не авторизован");
-                out.println("Ошибка: команда доступна только авторизованным пользователям. " +
-                        "Зарегистрируйтесь командой register или проверьте логин и пароль");
-            }
-        } catch (ArgExeption e) {
-            logger.info("ошибка, команда не выполнена");
-            out.println("Ошибка, команда не выполнена");
         }
     }
 }

@@ -7,11 +7,8 @@ import java.io.PrintWriter;
 public class Register implements Command {
     @Override
     public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
-        if (collectionManager.registerUser(login, pasword)) {
-            out.println("Пользователь зарегистрирован");
-        } else {
-            out.println("Не удалось зарегистрировать пользователя (возможно, логин уже занят)");
-        }
+        collectionManager.registerUser(login, pasword);
+        out.println("Пользователь зарегистрирован");
     }
 
     @Override

@@ -12,9 +12,9 @@ public class Reg {
     }
 
     public String[] autorize() {
-        System.out.print("Введите логин:");
+        System.out.println("Введите логин:");
         String login = reader.readLine();
-        System.out.print("ВВедите пароль:");
+        System.out.println("Введите пароль:");
         String password = reader.readLine();
 
 

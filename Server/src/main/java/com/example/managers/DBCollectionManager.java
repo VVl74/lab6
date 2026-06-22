@@ -73,7 +73,7 @@ public class DBCollectionManager {
      *
      */
     public synchronized boolean proverkUser(String username, String password) {
-        String zapr = "SELECT salt, password FROM users WHERE login = ?";
+        String zapr = "SELECT salt, password_hash FROM users WHERE login = ?";
 
         try(PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             przapr.setString(1, username);
@@ -136,6 +136,7 @@ public class DBCollectionManager {
             return false;
 
         } catch (SQLException e) {
+            System.out.println("Ошибка при добавлении в БД: " + e.getMessage());
             return false;
         }
     }
@@ -153,7 +154,7 @@ public class DBCollectionManager {
             int del = przapr.executeUpdate();
 
             if (del > 0) {
-                collection.remove(id);   // память обновляем только после успешного удаления из БД
+                collection.remove(id);
                 return true;
             }
             return false;
@@ -191,8 +192,7 @@ public class DBCollectionManager {
             int del = przapr.executeUpdate();
 
             if (del > 0) {
-                // удаляем из памяти те же элементы, что были удалены из БД
-                collection.values().removeIf(m -> m.getId() < id && m.getOwnerId() == ownerId);
+                collection.values().removeIf(m -> m.getId() < id && m.getOwnerId() == ownerId); // удаляем из памяти то, что удалили из БД
             }
 
             return del;
@@ -221,7 +221,7 @@ public class DBCollectionManager {
         }
     }
 
-    // Команда получения данных: фильтрация по коллекции в памяти
+    // Команда получения данных фильтрация по коллекции в памяти
     public ConcurrentHashMap<Integer, SpaceMarine> selectChapterLess(int count) {
         ConcurrentHashMap<Integer, SpaceMarine> res = new ConcurrentHashMap<>();
 

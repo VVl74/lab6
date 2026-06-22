@@ -15,15 +15,8 @@ public class Reader {
     boolean useJLine;
 
     public  Reader() {
-        try {
-            terminal = TerminalBuilder.builder().system(true).build();
-            reader = LineReaderBuilder.builder().terminal(terminal).build();
-            useJLine = true;
-        } catch (Exception e) {
-            System.out.println("JLine не доступен используем обычный терминал");
-            reader = new BufferedReader(new InputStreamReader(System.in));
-            useJLine = false;
-        }
+        reader = new BufferedReader(new InputStreamReader(System.in));
+        useJLine = false;
     }
 
     public String readLine() {

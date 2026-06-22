@@ -30,14 +30,13 @@ public class ServerEngine {
         logger.info("Сервер запущен");
         while (true) {
             try {
-                InputPack pack = readPool.submit(() -> servChannel.receive()).get(); //чтение запроса
-                // тут мы читаем просто запрос от клиента (ждем какой-то InputPack)
+                InputPack pack = readPool.submit(() -> servChannel.receive()).get();   // тут мы читаем просто запрос от клиента (ждем какой-то InputPack)
 
                 while (pack.client != null) {
                     logger.info("запрос получен");
                     final InputPack current = pack;
-                    new Thread(() -> processing(current)).start(); // выполнение запросов
-                    pack = readPool.submit(() -> servChannel.receive()).get(); // чтение накопившихся запросов
+                    new Thread(() -> processing(current)).start(); // выполнение запросов (запускаем новый поток с методом processing)
+                    pack = readPool.submit(() -> servChannel.receive()).get(); // обновляем пул запросов
                 }
 
                 inputManager.inputTerm(commandManager);

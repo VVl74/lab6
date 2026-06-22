@@ -28,7 +28,7 @@ public class Insert implements Command {
             return;
         }
 
-        if (collectionManager.insertMarine(spacemar, ownerId)) {
+        if (collectionManager.insertMarine(spacemar, collectionManager.getUserId(login))) {
             out.println("элемент добавлен\n");
         } else {
             out.println("не удалось добавить элемент\n");
