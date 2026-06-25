@@ -24,7 +24,33 @@ public class Client {
      *  </ol>
      */
     public static void main(String[] args) throws IOException {
-        ServerManager channel = new ServerManager(12345);
+        // Считываем адрес сервера первой строкой ввода (например localhost:1111)
+        Reader reader = new Reader();
+        System.out.println("Введите адрес сервера в формате host:port (например localhost:1111):");
+
+        String host = null;
+        int port = 0;
+        // Читаем строку, пока не получим корректный адрес
+        while (host == null) {
+            String line = reader.readLine();
+            if (line == null) {
+                return;
+            }
+            String[] parts = line.trim().split(":");
+            if (parts.length != 2) {
+                System.out.println("Неверный формат, введите host:port");
+                continue;
+            }
+            try {
+                host = parts[0];
+                port = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                System.out.println("Порт должен быть числом, введите host:port");
+                host = null;
+            }
+        }
+
+        ServerManager channel = new ServerManager(host, port);
 
          ServerManagerInterface retryChannel = new RetryDecor(channel, 5);
 
