@@ -24,7 +24,7 @@ public class Client {
      *  </ol>
      */
     public static void main(String[] args) throws IOException {
-        ServerManager channel = new ServerManager(12345);
+        ServerManager channel = new ServerManager(44312);
 
          ServerManagerInterface retryChannel = new RetryDecor(channel, 5);
 
