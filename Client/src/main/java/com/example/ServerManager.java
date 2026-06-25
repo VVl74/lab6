@@ -9,10 +9,10 @@ public class ServerManager implements ServerManagerInterface {
     DatagramChannel channel;
     InetSocketAddress serverAdress;
 
-    public ServerManager(String host, int port) throws IOException {
+    public ServerManager(int port) throws IOException {
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
-        serverAdress = new InetSocketAddress(host, port);
+        serverAdress = new InetSocketAddress("localhost", 12345);
     }
 
     public ByteBuffer receive(ByteBuffer vvodBuf) throws IOException, InterruptedException {
