@@ -24,7 +24,10 @@ public class Client {
      *  </ol>
      */
     public static void main(String[] args) throws IOException {
-         ServerManager channel = new ServerManager("localhost", 44231);
+        String host = args.length > 0 ? args[0] : "localhost";
+        int port = args.length > 1 ? Integer.parseInt(args[1]) : 44231;
+
+        ServerManager channel = new ServerManager(host, port);
 
          ServerManagerInterface retryChannel = new RetryDecor(channel, 5);
 

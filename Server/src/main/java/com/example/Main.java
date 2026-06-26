@@ -35,7 +35,8 @@ public class Main {
 
         CommandManager curCommandManager = new CommandManager(collectionManager);
 
-        ServerManager servChannel = new ServerManager(44231);
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : 44231;
+        ServerManager servChannel = new ServerManager(port);
 
         InputManager inputManager = new InputManager();
 
