@@ -36,7 +36,7 @@ public class ServerEngine {
                 InputPack pack = readPool.submit(() -> servChannel.receive()).get();   // тут мы читаем просто запрос от клиента (ждем какой-то InputPack)
 
                 while (pack.client != null) {
-                    logger.info("запрос получен");
+                    logger.info("Запрос от {} принят в обработку", pack.client);
                     final InputPack current = pack;
                     processingPool.execute(() -> processing(current));
 
@@ -71,6 +71,7 @@ public class ServerEngine {
                 return;
             }
 
+            logger.info("Команда '{}' от {} (login: {}) обработана, готовлю ответ", parts.length > 0 ? parts[0] : "?", pack.client, login);
             OutputPack outPack = packFactory.BuildPack(pack.client, commandManager, parts, login, password);
 
             sendPool.execute(() -> { // эта штука .execute просто запустит лямбду в фоновом режиме (т.е просто отправит на сервак наш пакет)
@@ -79,7 +80,7 @@ public class ServerEngine {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                logger.info("Ответ отправлен");
+                logger.info("Ответ клиенту {} отправлен", pack.client);
 
             });
         } catch (Exception e) {

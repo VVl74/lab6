@@ -19,19 +19,21 @@ public class ServerManager implements ServerManagerInterface {
         long otpravTime = System.currentTimeMillis();
         long timeOut = 5000;
 
-        System.out.println("Начинаем ожидание ответа");
+        System.out.println("[ПРИЁМ] Ожидаем ответ от сервера " + serverAdress);
 
         while(true) {
 
             java.net.SocketAddress from  = channel.receive(vvodBuf);
 
             if (from != null) {
-                System.out.println("Получен ответ от: " + from);
+                int size = vvodBuf.position();
+                System.out.println("[ПРИЁМ] Получен ответ " + size + " байт от " + from
+                        + " (ждали " + (System.currentTimeMillis() - otpravTime) + " мс)");
                 break;
             }
 
             if (System.currentTimeMillis() - otpravTime > timeOut) {
-                System.out.println("Сервер не ответил за " + timeOut + " мс");
+                System.out.println("[ПРИЁМ] Сервер не ответил за " + timeOut + " мс");
                 return null;
             }
 
@@ -42,6 +44,8 @@ public class ServerManager implements ServerManagerInterface {
 
     public void send(ByteBuffer buf) throws IOException {
         buf.rewind();
+        int size = buf.remaining();
         channel.send(buf, serverAdress);
+        System.out.println("[ОТПРАВКА] Отправлен пакет " + size + " байт на сервер " + serverAdress);
     }
 }

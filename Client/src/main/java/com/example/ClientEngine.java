@@ -40,6 +40,7 @@ public class ClientEngine {
     private void processing(String input, String login, String passwordHash) throws IOException {
         ByteBuffer sendBuf = factory.OutputFactory(input, login, passwordHash);
         try {
+            System.out.println("[ОТПРАВКА] Отправляем команду '" + input + "' (login: " + login + ")");
             serverManager.send(sendBuf);
 
             ByteBuffer vvodBuf = ByteBuffer.allocate(16384);
