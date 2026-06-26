@@ -35,8 +35,8 @@ public class Parser {
         try {
 
             int nid = 0;
-            if (Double.parseDouble(args[0]) > Integer.MAX_VALUE) {
-                throw new InputExeption("слишком большой ID", out);
+            if (Double.parseDouble(args[0]) > Integer.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+                throw new InputExeption("слишком большой или отрицательный ID", out);
             } else {
                 nid = Integer.parseInt(args[0]);
             }
@@ -45,16 +45,16 @@ public class Parser {
 
             float x;
 
-            if (Double.parseDouble(args[0]) > Float.MAX_VALUE) {
-                throw new InputExeption("слишком большой x", out);
+            if (Double.parseDouble(args[0]) > Float.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+                throw new InputExeption("слишком большой или отрицательный x", out);
             } else {
                 x = Float.parseFloat(args[0]);
             }
 
             Long y = (long) 0;
 
-            if ( Double.parseDouble(args[3]) > Long.MAX_VALUE) {
-                throw new InputExeption("слишком большой y", out);
+            if ( Double.parseDouble(args[3]) > Long.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+                throw new InputExeption("слишком большой или отрицательный y", out);
             } else {
                 y = Long.parseLong(args[3]);
             }
@@ -65,8 +65,8 @@ public class Parser {
 
             double health;
 
-            if ( Double.parseDouble(args[4]) > Long.MAX_VALUE) {
-                throw new InputExeption("слишком большой health", out);
+            if ( Double.parseDouble(args[4]) > Long.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+                throw new InputExeption("слишком большой или отрицательный health", out);
             } else {
                 health = Long.parseLong(args[4]);
             }
@@ -85,8 +85,8 @@ public class Parser {
 
             Long marinescount;
 
-            if ( Double.parseDouble(args[10]) > Long.MAX_VALUE) {
-                throw new InputExeption("слишком большой marinescount", out);
+            if ( Double.parseDouble(args[10]) > Long.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+                throw new InputExeption("слишком большой или отрицательный marinescount", out);
             } else {
                 marinescount = Long.parseLong(args[10]);
             }
