@@ -52,9 +52,6 @@ public class ServerEngine {
 
     private void processing(InputPack pack) {
         /**
-         * Метод для обработки одного запроса в отдельном потоке
-         * т.е создаем новый поток, куда мы передаем лямбду
-         * new Thread(() -> processing(сюда запрос).start()) -- обработка запроса
          */
         try {
             ParsedRequest parsedRequest = deserializer.deserialize(pack);

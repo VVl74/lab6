@@ -9,10 +9,18 @@ public class ServerManager implements ServerManagerInterface {
     DatagramChannel channel;
     InetSocketAddress serverAdress;
 
-    public ServerManager(int port) throws IOException {
+    public ServerManager(String host, int port) throws IOException {
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
-        serverAdress = new InetSocketAddress("se.ifmo.ru", 44312);
+        serverAdress = new InetSocketAddress(host, port);
+
+        // проверяем, что имя сервера вообще резолвится в IP
+        if (serverAdress.isUnresolved()) {
+            System.out.println("[ОШИБКА] Не удалось определить IP сервера '"
+                    + host + "'. Проверь домен и подключение к сети ИТМО.");
+        } else {
+            System.out.println("[СЕТЬ] Адрес сервера: " + serverAdress);
+        }
     }
 
     public ByteBuffer receive(ByteBuffer vvodBuf) throws IOException, InterruptedException {

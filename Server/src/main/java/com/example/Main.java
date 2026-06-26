@@ -35,7 +35,7 @@ public class Main {
 
         CommandManager curCommandManager = new CommandManager(collectionManager);
 
-        ServerManager servChannel = new ServerManager(44312);
+        ServerManager servChannel = new ServerManager(44231);
 
         InputManager inputManager = new InputManager();
 

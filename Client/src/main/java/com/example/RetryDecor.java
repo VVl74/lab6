@@ -25,7 +25,7 @@ public class RetryDecor implements ServerManagerInterface {
                 serverManager.send(buf);
                 return;
             } catch (Exception e) {
-                System.out.println("Отправка не удалась, попытка: " + (i + 1));
+                System.out.println("Отправка не удалась, попытка: " + (i + 1) + ", причина: " + e);
             }
 
             Thread.sleep(retryDelay);
