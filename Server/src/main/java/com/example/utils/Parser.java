@@ -53,7 +53,7 @@ public class Parser {
 
             Long y = (long) 0;
 
-            if ( Double.parseDouble(args[3]) > Long.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+            if ( Double.parseDouble(args[3]) > Long.MAX_VALUE || Double.parseDouble(args[3]) <= 0) {
                 throw new InputExeption("слишком большой или отрицательный y", out);
             } else {
                 y = Long.parseLong(args[3]);
@@ -65,7 +65,7 @@ public class Parser {
 
             double health;
 
-            if ( Double.parseDouble(args[4]) > Long.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+            if ( Double.parseDouble(args[4]) > Long.MAX_VALUE || Double.parseDouble(args[4]) <= 0) {
                 throw new InputExeption("слишком большой или отрицательный health", out);
             } else {
                 health = Long.parseLong(args[4]);
@@ -85,7 +85,7 @@ public class Parser {
 
             Long marinescount;
 
-            if ( Double.parseDouble(args[10]) > Long.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
+            if ( Double.parseDouble(args[10]) > Long.MAX_VALUE || Double.parseDouble(args[10]) <= 0) {
                 throw new InputExeption("слишком большой или отрицательный marinescount", out);
             } else {
                 marinescount = Long.parseLong(args[10]);
