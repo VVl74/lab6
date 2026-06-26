@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ServerEngine {
     Logger logger = LoggerFactory.getLogger(ServerEngine.class);
@@ -15,6 +17,7 @@ public class ServerEngine {
     PackFactory packFactory;
     Deserializer deserializer;
 
+    private final ExecutorService processingPool = Executors.newFixedThreadPool(10);
     private final ForkJoinPool readPool = new ForkJoinPool(); // чтение запросов
     private final ForkJoinPool sendPool = new ForkJoinPool(); // отправка ответов
 
@@ -35,8 +38,9 @@ public class ServerEngine {
                 while (pack.client != null) {
                     logger.info("запрос получен");
                     final InputPack current = pack;
-                    new Thread(() -> processing(current)).start(); // выполнение запросов (запускаем новый поток с методом processing)
-                    pack = readPool.submit(() -> servChannel.receive()).get(); // обновляем пул запросов
+                    processingPool.execute(() -> processing(current));
+
+                    pack = readPool.submit(() -> servChannel.receive()).get();
                 }
 
                 inputManager.inputTerm(commandManager);

@@ -19,7 +19,7 @@ public class ReplaceIfLower implements Command {
             throw new ArgExeption();
             // System.out.println("Неверный ввод данных");
         }
-        Parser parser = new Parser();
+        Parser parser = new Parser(out);
         int ownerId = collectionManager.getUserId(login);
 
         SpaceMarine spacemar;

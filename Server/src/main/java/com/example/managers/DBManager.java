@@ -11,7 +11,7 @@ public class DBManager {
     private static DBManager instance;
     final String USER = "s494533";
     final String PASSWD = "eW5IfMpYfQNlAvJ7";
-    final String URL = "jdbc:postgresql://pg:5432/studs";
+    final String URL = "jdbc:postgresql://localhost:5433/studs";
     private Connection connection; // ПОдключение к нашей базе
 
     // Конструктор дефолтный
@@ -34,7 +34,7 @@ public class DBManager {
     public void connect() throws SQLException {
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(URL, USER, PASSWD);
-            System.out.println("Connected to bd successfully. \n");
+            System.out.println("Подключены к БД. \n");
         }
     }
 
@@ -45,7 +45,7 @@ public class DBManager {
     public void disconect() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
-            System.out.println("Disconnected from db successfully. \n");
+            System.out.println("Отключены от БД. \n");
         }
     }
 

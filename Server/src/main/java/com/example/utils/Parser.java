@@ -4,6 +4,7 @@ import com.example.collection.*;
 import com.example.exeptions.FileExeption;
 import com.example.exeptions.InputExeption;
 
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
  */
 public class Parser {
     private static int id = 1;
+    private PrintWriter out;
     /**
      * Начало парсера
      *  <ol>
@@ -20,11 +22,21 @@ public class Parser {
      *      <li> возвращаем собранный элемент </li>
      *  </ol>
      */
+
+    public Parser(PrintWriter out) {
+        this.out = out;
+    }
+
+    public Parser() {}
+    // public Parser() {}
+
     public SpaceMarine parsSpaceMarine(String[] args, int ownerid) {
+
         try {
+
             int nid = 0;
             if (Double.parseDouble(args[0]) > Integer.MAX_VALUE) {
-                throw new InputExeption("слишком большой ID");
+                throw new InputExeption("слишком большой ID", out);
             } else {
                 nid = Integer.parseInt(args[0]);
             }
@@ -34,7 +46,7 @@ public class Parser {
             float x;
 
             if (Double.parseDouble(args[0]) > Float.MAX_VALUE) {
-                throw new InputExeption("слишком большой x");
+                throw new InputExeption("слишком большой x", out);
             } else {
                 x = Float.parseFloat(args[0]);
             }
@@ -42,7 +54,7 @@ public class Parser {
             Long y = (long) 0;
 
             if ( Double.parseDouble(args[3]) > Long.MAX_VALUE) {
-                throw new InputExeption("слишком большой y");
+                throw new InputExeption("слишком большой y", out);
             } else {
                 y = Long.parseLong(args[3]);
             }
@@ -54,7 +66,7 @@ public class Parser {
             double health;
 
             if ( Double.parseDouble(args[4]) > Long.MAX_VALUE) {
-                throw new InputExeption("слишком большой health");
+                throw new InputExeption("слишком большой health", out);
             } else {
                 health = Long.parseLong(args[4]);
             }
@@ -74,7 +86,7 @@ public class Parser {
             Long marinescount;
 
             if ( Double.parseDouble(args[10]) > Long.MAX_VALUE) {
-                throw new InputExeption("слишком большой marinescount");
+                throw new InputExeption("слишком большой marinescount", out);
             } else {
                 marinescount = Long.parseLong(args[10]);
             }
@@ -86,7 +98,7 @@ public class Parser {
             SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt, ownerid);
             return spacemar;
         } catch (Exception e) {
-            throw new InputExeption(e.getMessage());
+            throw new InputExeption(e.getMessage(), out);
         }
     }
     /**
@@ -109,7 +121,7 @@ public class Parser {
             return nchapt;
 
         } catch(Exception e) {
-            throw new InputExeption(e.getMessage());
+            throw new InputExeption(e.getMessage(), out);
         }
     }
 

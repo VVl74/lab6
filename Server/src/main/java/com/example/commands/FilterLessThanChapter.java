@@ -24,12 +24,12 @@ public class FilterLessThanChapter implements Command {
             throw  new ArgExeption();
             // System.out.println("неверное число аргументов");
         }
-        Parser parser = new Parser();
+        Parser parser = new Parser(out);
         Chapter chapter = null;
         try {
             chapter = parser.parseChapter(args);
         } catch (Exception e) {
-            throw new InputExeption(e.getMessage());
+            throw new InputExeption(e.getMessage(), out);
         }
 
 

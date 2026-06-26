@@ -26,7 +26,7 @@ public class CountLessThanHealth implements Command {
         try {
             hp = Double.parseDouble(args[0]);
         } catch (Exception e) {
-            throw new InputExeption(e.getMessage());
+            throw new InputExeption(e.getMessage(), out);
         }
 
         int sh = 0;

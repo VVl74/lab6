@@ -18,7 +18,7 @@ public class UpdateId implements Command {
         if (args.length != 12) {
             throw new ArgExeption();
         }
-        Parser parser = new Parser();
+        Parser parser = new Parser(out);
         int ownerId = collectionManager.getUserId(login);
         SpaceMarine spacemar;
         try {

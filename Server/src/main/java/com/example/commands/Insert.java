@@ -18,7 +18,7 @@ public class Insert implements Command {
             throw new ArgExeption();
             //System.out.println("неверное число аргументов " + args.length);
         }
-        Parser parser = new Parser();
+        Parser parser = new Parser(out);
         int ownerId = collectionManager.getUserId(login);
         SpaceMarine spacemar = null;
         try {

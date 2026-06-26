@@ -12,7 +12,7 @@ public class ServerManager implements ServerManagerInterface {
     public ServerManager(int port) throws IOException {
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
-        serverAdress = new InetSocketAddress("localhost", 12345);
+        serverAdress = new InetSocketAddress("localhost", 44312);
     }
 
     public ByteBuffer receive(ByteBuffer vvodBuf) throws IOException, InterruptedException {
