@@ -22,18 +22,47 @@ public class Parser {
      */
     public SpaceMarine parsSpaceMarine(String[] args, int ownerid) {
         try {
-            int nid = Integer.parseInt(args[0]);
+            int nid = 0;
+            if (Double.parseDouble(args[0]) > Integer.MAX_VALUE) {
+                throw new InputExeption("слишком большой ID");
+            } else {
+                nid = Integer.parseInt(args[0]);
+            }
+
             String name = args[1];
-            float x = Float.parseFloat(args[2]);
-            Long y = (long) Integer.parseInt(args[3]);
+
+            float x;
+
+            if (Double.parseDouble(args[0]) > Float.MAX_VALUE) {
+                throw new InputExeption("слишком большой x");
+            } else {
+                x = Float.parseFloat(args[0]);
+            }
+
+            Long y = (long) 0;
+
+            if ( Double.parseDouble(args[3]) > Long.MAX_VALUE) {
+                throw new InputExeption("слишком большой y");
+            } else {
+                y = Long.parseLong(args[3]);
+            }
 
             Coordinates cord = new Coordinates(x, y);
 
             LocalDateTime ndate = LocalDateTime.now();
 
-            double health = (double) Float.parseFloat(args[4]);
+            double health;
+
+            if ( Double.parseDouble(args[4]) > Long.MAX_VALUE) {
+                throw new InputExeption("слишком большой health");
+            } else {
+                health = Long.parseLong(args[4]);
+            }
+
+
 
             AstartesCategory nc = AstartesCategory.valueOf(args[5]);
+
 
             Weapon nweapon = Weapon.valueOf(args[6]);
 
@@ -42,7 +71,13 @@ public class Parser {
             String nchaptername = args[8];
             String nparentlegion = args[9];
 
-            Long marinescount = (long) Integer.parseInt(args[10]);
+            Long marinescount;
+
+            if ( Double.parseDouble(args[10]) > Long.MAX_VALUE) {
+                throw new InputExeption("слишком большой marinescount");
+            } else {
+                marinescount = Long.parseLong(args[10]);
+            }
 
             String world = args[11];
 
@@ -51,7 +86,7 @@ public class Parser {
             SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt, ownerid);
             return spacemar;
         } catch (Exception e) {
-            throw new InputExeption();
+            throw new InputExeption(e.getMessage());
         }
     }
     /**
@@ -74,7 +109,7 @@ public class Parser {
             return nchapt;
 
         } catch(Exception e) {
-            throw new InputExeption();
+            throw new InputExeption(e.getMessage());
         }
     }
 

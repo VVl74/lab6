@@ -30,7 +30,7 @@ public class FilterGreaterThanChapter implements Command {
         try {
             chapter = parser.parseChapter(args);
         } catch (Exception e) {
-            throw new InputExeption();
+            throw new InputExeption(e.getMessage());
         }
 
         ConcurrentHashMap<Integer, SpaceMarine> res = collectionManager.selectChapterGreat((int) chapter.getMarinesCount());

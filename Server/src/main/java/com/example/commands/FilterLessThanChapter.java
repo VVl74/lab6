@@ -29,7 +29,7 @@ public class FilterLessThanChapter implements Command {
         try {
             chapter = parser.parseChapter(args);
         } catch (Exception e) {
-            throw new InputExeption();
+            throw new InputExeption(e.getMessage());
         }
 
 

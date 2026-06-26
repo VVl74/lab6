@@ -4,7 +4,7 @@ package com.example.exeptions;
  *
  */
 public class InputExeption extends RuntimeException {
-    public InputExeption() {
-        System.out.println("Ошибка: Неверный тип данных ввода");
+    public InputExeption(String message) {
+        System.out.println("Ошибка: Неверный тип данных ввода" + message);
     }
 }

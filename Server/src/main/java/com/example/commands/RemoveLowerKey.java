@@ -22,7 +22,7 @@ public class RemoveLowerKey implements Command {
         try {
             id = Integer.parseInt(args[0]);
         } catch (Exception e) {
-            throw new InputExeption();
+            throw new InputExeption(e.getMessage());
         }
 
         collectionManager.removeLowerKeyMarine(id, collectionManager.getUserId(login));
