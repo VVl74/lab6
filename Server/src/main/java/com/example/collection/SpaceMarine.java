@@ -57,6 +57,7 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
         return chapter;
     }
     public String getOwnerName() { return ownerName; }
+    public void setOwnerName(String nownerName) { ownerName = nownerName; }
     public int getOwnerId() {return ownerId; }
 
     public LocalDateTime spaceGetTime() {
@@ -79,8 +80,20 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
 
     @Override
     public String toString() {
-        return "id= " + id + " name= " + name + " health= " + health + " chapter= "
-                + chapter.getName() + " world = " + chapter.getWorld()
-                 + " owner id: " + getOwnerId() + " owner name: " + getOwnerName();
+        return "id= " + id
+                + " name= " + name
+                + " x= " + coordinates.getX()
+                + " y= " + coordinates.getY()
+                + " creationDate= " + creationDate
+                + " health= " + health
+                + " category= " + category
+                + " weaponType= " + weaponType
+                + " meleeWeapon= " + meleeWeapon
+                + " chapterName= " + chapter.getName()
+                + " parentLegion= " + chapter.getParentLegion()
+                + " marinesCount= " + chapter.getMarinesCount()
+                + " world= " + chapter.getWorld()
+                + " ownerId= " + ownerId
+                + " ownerName= " + ownerName;
     }
 }

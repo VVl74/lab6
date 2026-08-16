@@ -1,6 +1,7 @@
 package com.example.commands;
 
 import com.example.exeptions.ArgExeption;
+import com.example.exeptions.InputExeption;
 import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 
@@ -12,14 +13,21 @@ import java.io.PrintWriter;
  */
 public class RemoveKey implements Command {
     public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
-        if (args.length !=1) {
+        if (args.length != 1) {
             throw new ArgExeption();
-            // System.out.println("неверное число аргументов");
         }
-        int id = Integer.parseInt(args[0]);
-        collectionManager.removeMarine(id, collectionManager.getUserId(login));
+        int id;
+        try {
+            id = Integer.parseInt(args[0]);
+        } catch (Exception e) {
+            throw new InputExeption(e.getMessage(), out);
+        }
 
-        out.println("элемент удален\n");
+        if (collectionManager.removeMarine(id, collectionManager.getUserId(login))) {
+            out.println("элемент удален\n");
+        } else {
+            out.println("элемент не найден или принадлежит другому пользователю\n");
+        }
     }
     public String getComandInfo() {
         return "remove_key key (int) : удалить элемент из коллекции по его ключу\n";

@@ -1,5 +1,6 @@
 package com.example.utils;
 
+import com.example.FieldParser;
 import com.example.collection.*;
 import com.example.exeptions.FileExeption;
 import com.example.exeptions.InputExeption;
@@ -31,72 +32,23 @@ public class Parser {
     // public Parser() {}
 
     public SpaceMarine parsSpaceMarine(String[] args, int ownerid) {
-
         try {
-
-            int nid = 0;
-            if (Double.parseDouble(args[0]) > Integer.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
-                throw new InputExeption("слишком большой или отрицательный ID", out);
-            } else {
-                nid = Integer.parseInt(args[0]);
-            }
-
-            String name = args[1];
-
-            float x;
-
-            if (Double.parseDouble(args[0]) > Float.MAX_VALUE || Double.parseDouble(args[0]) <= 0) {
-                throw new InputExeption("слишком большой или отрицательный x", out);
-            } else {
-                x = Float.parseFloat(args[0]);
-            }
-
-            Long y = (long) 0;
-
-            if ( Double.parseDouble(args[3]) > Long.MAX_VALUE || Double.parseDouble(args[3]) <= 0) {
-                throw new InputExeption("слишком большой или отрицательный y", out);
-            } else {
-                y = Long.parseLong(args[3]);
-            }
-
+            int nid = FieldParser.parseId(args[0]);
+            String name = FieldParser.parseName(args[1]);
+            float x = FieldParser.parseX(args[2]);
+            Long y = FieldParser.parseY(args[3]);
             Coordinates cord = new Coordinates(x, y);
-
             LocalDateTime ndate = LocalDateTime.now();
-
-            double health;
-
-            if ( Double.parseDouble(args[4]) > Long.MAX_VALUE || Double.parseDouble(args[4]) <= 0) {
-                throw new InputExeption("слишком большой или отрицательный health", out);
-            } else {
-                health = Long.parseLong(args[4]);
-            }
-
-
-
-            AstartesCategory nc = AstartesCategory.valueOf(args[5]);
-
-
-            Weapon nweapon = Weapon.valueOf(args[6]);
-
-            MeleeWeapon nmeleeweapon = MeleeWeapon.valueOf(args[7]);
-
-            String nchaptername = args[8];
-            String nparentlegion = args[9];
-
-            Long marinescount;
-
-            if ( Double.parseDouble(args[10]) > Long.MAX_VALUE || Double.parseDouble(args[10]) <= 0) {
-                throw new InputExeption("слишком большой или отрицательный marinescount", out);
-            } else {
-                marinescount = Long.parseLong(args[10]);
-            }
-
-            String world = args[11];
-
+            double health = FieldParser.parseHealth(args[4]);
+            AstartesCategory nc = AstartesCategory.valueOf(FieldParser.parseCategory(args[5]));
+            Weapon nweapon = Weapon.valueOf(FieldParser.parseWeapon(args[6]));
+            MeleeWeapon nmeleeweapon = MeleeWeapon.valueOf(FieldParser.parseMeleeWeapon(args[7]));
+            String nchaptername = FieldParser.parseChapterName(args[8]);
+            String nparentlegion = FieldParser.parseParentLegion(args[9]);
+            Long marinescount = FieldParser.parseMarinesCount(args[10]);
+            String world = FieldParser.parseWorld(args[11]);
             Chapter marinchapt = new Chapter(nchaptername, nparentlegion, marinescount, world);
-
-            SpaceMarine spacemar = new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt, ownerid);
-            return spacemar;
+            return new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt, ownerid);
         } catch (Exception e) {
             throw new InputExeption(e.getMessage(), out);
         }
@@ -111,16 +63,12 @@ public class Parser {
      */
     public Chapter parseChapter(String[] args) {
         try {
-            String s1 = args[0];
-            String s2 = args[1];
-            Long chislen = (long) Integer.parseInt(args[2]);
-            String s3 = args[3];
-
-            Chapter nchapt = new Chapter(s1, s2, chislen, s3);
-
-            return nchapt;
-
-        } catch(Exception e) {
+            String s1 = FieldParser.parseChapterName(args[0]);
+            String s2 = FieldParser.parseParentLegion(args[1]);
+            Long chislen = FieldParser.parseMarinesCount(args[2]);
+            String s3 = FieldParser.parseWorld(args[3]);
+            return new Chapter(s1, s2, chislen, s3);
+        } catch (Exception e) {
             throw new InputExeption(e.getMessage(), out);
         }
     }
@@ -144,6 +92,7 @@ public class Parser {
         String world = rs.getString("chapter_world");
         Chapter chapter = new Chapter(chapterName, parentLegion, marinesCount, world);
         SpaceMarine marine = new SpaceMarine(id, name, coords, creationDate, health, category, weapon, meleeWeapon, chapter, ownerId);
+        marine.setOwnerName(rs.getString("owner_name"));
         return marine;
     }
 /*

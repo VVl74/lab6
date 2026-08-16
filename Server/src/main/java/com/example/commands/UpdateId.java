@@ -23,6 +23,7 @@ public class UpdateId implements Command {
         SpaceMarine spacemar;
         try {
             spacemar = parser.parsSpaceMarine(args, ownerId);
+            spacemar.setOwnerName(login);
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;
@@ -40,7 +41,7 @@ public class UpdateId implements Command {
     }
     public String getComandInfo() {
         return "update id {element} : обновить значение элемента коллекции," +
-                " id которого равен заданному передать элемент необходимо в формате" +
-                "аналогичном команде insert\n";
+                " id которого равен заданному. Поля можно вводить по одному после приглашения," +
+                " либо все аргументы в одной строке в формате, аналогичном команде insert\n";
     }
 }

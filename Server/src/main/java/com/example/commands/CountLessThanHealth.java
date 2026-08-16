@@ -16,9 +16,8 @@ import java.util.Set;
 public class CountLessThanHealth implements Command {
     public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) throws ArgExeption, InputExeption {
         Logger logger = LoggerFactory.getLogger(CountLessThanHealth.class);
-        if (args.length > 1) {
+        if (args.length != 1) {
             throw new ArgExeption();
-            // System.out.println("нужен только 1 аргумент");
         }
 
         double hp;

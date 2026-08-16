@@ -32,6 +32,7 @@ public class CommandManager {
     public CommandManager(DBCollectionManager newCollectionManager) {
         collectionManager = newCollectionManager;
         commandHashMap.put("register", new Register());
+        commandHashMap.put("login", new Login());
         commandHashMap.put("help", new Help(commandHashMap));
         commandHashMap.put("info", new Info());
         commandHashMap.put("history", new History(commandHistory));
@@ -72,7 +73,7 @@ public class CommandManager {
         if (commandHashMap.containsKey(com)) {
             try {
                 logger.info("команда выполняется");
-                if (com.equals("register")) {
+                if (com.equals("register") || com.equals("login")) {
                     commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
                     commandHistory.add(com);
                     return;

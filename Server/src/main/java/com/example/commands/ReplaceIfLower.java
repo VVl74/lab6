@@ -25,6 +25,7 @@ public class ReplaceIfLower implements Command {
         SpaceMarine spacemar;
         try {
             spacemar = parser.parsSpaceMarine(args, ownerId);
+            spacemar.setOwnerName(login);
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;
@@ -42,8 +43,8 @@ public class ReplaceIfLower implements Command {
         }
     }
     public String getComandInfo() {
-        return "replace_if_lower key {element} : заменить значение по ключу, если новое значение меньше старого\n" +
+        return "replace_if_lowe key {element} : заменить значение по ключу, если новое значение меньше старого\n" +
                 "сравнение производится по полю health\n" +
-                "элемент необходимо передать в том же формате, что и в команде insert\n";
+                "поля можно вводить по одному после приглашения, либо все аргументы в одной строке как в insert\n";
     }
 }

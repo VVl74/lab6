@@ -24,7 +24,23 @@ public class Show implements Command {
 
 
         for (var v: nmarines) {
-            out.println(v);
+            out.println(
+                    "id= " + v.getId()
+                    + " name= " + v.getName()
+                    + " x= " + v.getCoordinates().getX()
+                    + " y= " + v.getCoordinates().getY()
+                    + " creationDate= " + v.spaceGetTime()
+                    + " health= " + v.getHealth()
+                    + " category= " + v.getCategory()
+                    + " weaponType= " + v.getWeaponType()
+                    + " meleeWeapon= " + v.getMeleeWeapon()
+                    + " chapterName= " + v.getChapter().getName()
+                    + " parentLegion= " + v.getChapter().getParentLegion()
+                    + " marinesCount= " + v.getChapter().getMarinesCount()
+                    + " world= " + v.getChapter().getWorld()
+                    + " ownerId= " + v.getOwnerId()
+                    + " ownerName= " + v.getOwnerName()
+            );
         }
 
         out.println("элементы коллекции выведены\n");

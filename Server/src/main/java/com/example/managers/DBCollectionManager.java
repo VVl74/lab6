@@ -33,7 +33,7 @@ public class DBCollectionManager {
      *
      */
     public synchronized void loadCollection() {
-        String zapr = "SELECT * FROM space_marines";
+        String zapr = "SELECT sm.*, u.login AS owner_name FROM space_marines sm LEFT JOIN users u ON u.id = sm.owner_id";
 
         try (PreparedStatement przapr = dbManager.getConnection().prepareStatement(zapr)) {
             ResultSet rs = przapr.executeQuery();

@@ -23,6 +23,7 @@ public class Insert implements Command {
         SpaceMarine spacemar = null;
         try {
             spacemar = parser.parsSpaceMarine(args, ownerId);
+            spacemar.setOwnerName(login);
         } catch (Exception e) {
             out.println("ошибка ввода данных");
             return;
@@ -37,7 +38,8 @@ public class Insert implements Command {
     public String getComandInfo() {
         // insert 500 Ultramarine 12.5 7 150 ASSAULT BOLTGUN CHAIN_SWORD Ultramar Guilliman 500 Macragge
         return "insert {element} — добавить новый элемент с указанным ключом.\n" +
-                "Аргументы необходимо вводить через пробел в следующем порядке:\n" +
+                "В интерактивном режиме поля запрашиваются по одному после приглашения.\n" +
+                "Можно также передать все аргументы в одной строке через пробел в порядке:\n" +
                 "1. (int) id — идентификатор\n" +
                 "2. (string) name — имя\n" +
                 "3. (float) cordX — координата X\n" +
