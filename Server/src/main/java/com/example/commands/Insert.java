@@ -2,7 +2,6 @@ package com.example.commands;
 
 import com.example.collection.SpaceMarine;
 import com.example.exeptions.ArgExeption;
-import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
@@ -10,17 +9,26 @@ import java.io.PrintWriter;
 
 /**
  * Комманда для добавления элемента в коллекцию
- *
  */
 public class Insert implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
+    private final DBCollectionManager collectionManager;
+
+    public Insert(DBCollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+    }
+
+    @Override
+    public void execute(CommandContext ctx) {
+        String[] args = ctx.getArgs();
+        PrintWriter out = ctx.getOut();
+        String login = ctx.getLogin();
+
         if (args.length != 12) {
             throw new ArgExeption();
-            //System.out.println("неверное число аргументов " + args.length);
         }
         Parser parser = new Parser(out);
         int ownerId = collectionManager.getUserId(login);
-        SpaceMarine spacemar = null;
+        SpaceMarine spacemar;
         try {
             spacemar = parser.parsSpaceMarine(args, ownerId);
             spacemar.setOwnerName(login);
@@ -35,8 +43,9 @@ public class Insert implements Command {
             out.println("не удалось добавить элемент\n");
         }
     }
+
+    @Override
     public String getComandInfo() {
-        // insert 500 Ultramarine 12.5 7 150 ASSAULT BOLTGUN CHAIN_SWORD Ultramar Guilliman 500 Macragge
         return "insert {element} — добавить новый элемент с указанным ключом.\n" +
                 "В интерактивном режиме поля запрашиваются по одному после приглашения.\n" +
                 "Можно также передать все аргументы в одной строке через пробел в порядке:\n" +

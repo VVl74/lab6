@@ -1,15 +1,14 @@
 package com.example.commands;
 
-import com.example.managers.DBCollectionManager;
-
-import java.io.PrintWriter;
-
 /**
- * Интерфейс для всех команд для комманд паттерна
- *
+ * Интерфейс команды. Зависимости передаются в конструктор,
+ * данные текущего запроса — в {@link CommandContext}.
  */
-
 public interface Command {
-    void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword);
+    void execute(CommandContext ctx);
     String getComandInfo();
+
+    default boolean needsAuth() {
+        return true;
+    }
 }

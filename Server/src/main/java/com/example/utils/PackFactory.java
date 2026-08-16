@@ -2,8 +2,8 @@ package com.example.utils;
 
 import com.example.Wrapper;
 import com.example.WrapperUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.managers.CommandManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -11,32 +11,30 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 public class PackFactory {
-    ObjectMapper mapper;
-    WrapperUtils utils;
-    public PackFactory() {
+    private final ObjectMapper mapper;
+    private final WrapperUtils utils;
+    private final CommandManager commandManager;
+
+    public PackFactory(CommandManager commandManager) {
+        this.commandManager = commandManager;
         mapper = new ObjectMapper();
         utils = new WrapperUtils(31);
     }
 
-    public OutputPack BuildPack(SocketAddress client, CommandManager curCommandManager, String[] parts, String login, String password) {
+    public OutputPack buildPack(SocketAddress client, ParsedRequest request) {
         ByteArrayOutputStream bufStream = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(bufStream, true);
 
+        String[] parts = request.getParts();
         if (!parts[0].equals("exit") && !parts[0].equals("save")) {
-            curCommandManager.newCommand(parts, out, login, password);
+            commandManager.newCommand(parts, out, request.getLogin(), request.getPassword());
         }
 
         out.flush();
-        String prStr = bufStream.toString();
-
-
-        ByteBuffer otvet = makeWrap(prStr);
-
-        OutputPack outPack = new OutputPack(otvet, client);
-
-        return outPack;
-
+        ByteBuffer otvet = makeWrap(bufStream.toString());
+        return new OutputPack(otvet, client);
     }
+
     public ByteBuffer makeWrap(String prStr) {
         Wrapper res = new Wrapper();
         int sum = utils.getControlSum(prStr);
@@ -44,15 +42,12 @@ public class PackFactory {
         res.setZapr(prStr, sum, hash, "", "");
 
         byte[] jsonByte;
-
         try {
             jsonByte = mapper.writeValueAsBytes(res);
         } catch (Exception e) {
             e.printStackTrace();
             jsonByte = "ошибка сериализации".getBytes();
         }
-
-        ByteBuffer ansver = ByteBuffer.wrap(jsonByte);
-        return ansver;
+        return ByteBuffer.wrap(jsonByte);
     }
 }

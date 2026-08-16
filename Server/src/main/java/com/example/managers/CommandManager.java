@@ -7,21 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
- * Ключевой класс приложения отвечающий за работу с командами
- * <p>
- *  Функции класса
- *  <ul>
- *      <li> Хранение списка команд </li>
- *      <li> Валидирование и вызов нужных команд </li>
- *      <li> Обработка ошибок </li>
- *      <li> Хранение истории команд </li>
- * </ul>
+ * Реестр команд и точка входа: проверка авторизации и вызов нужной команды.
  */
 public class CommandManager {
     Logger logger = LoggerFactory.getLogger(CommandManager.class);
@@ -31,67 +22,55 @@ public class CommandManager {
 
     public CommandManager(DBCollectionManager newCollectionManager) {
         collectionManager = newCollectionManager;
-        commandHashMap.put("register", new Register());
-        commandHashMap.put("login", new Login());
+        commandHashMap.put("register", new Register(collectionManager));
+        commandHashMap.put("login", new Login(collectionManager));
         commandHashMap.put("help", new Help(commandHashMap));
-        commandHashMap.put("info", new Info());
+        commandHashMap.put("info", new Info(collectionManager));
         commandHashMap.put("history", new History(commandHistory));
-        commandHashMap.put("exit", new Exit(commandHashMap));
-        commandHashMap.put("clear", new Clear());
-        commandHashMap.put("show", new Show());
-        commandHashMap.put("insert", new Insert());
-        commandHashMap.put("update", new UpdateId());
-        commandHashMap.put("remove_key", new RemoveKey());
-        ExecuteScriptFileName executeScriptFileName = new ExecuteScriptFileName();
-        executeScriptFileName.parentComManger(this);
-        commandHashMap.put("execute_script", executeScriptFileName);
-        // commandHashMap.put("save", new Save());
-        commandHashMap.put("replace_if_lowe", new ReplaceIfLower());
-        commandHashMap.put("remove_lower_key", new RemoveLowerKey());
-        commandHashMap.put("count_less_than_health", new CountLessThanHealth());
-        commandHashMap.put("filter_less_than_chapter", new FilterLessThanChapter());
-        commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter());
+        commandHashMap.put("exit", new Exit());
+        commandHashMap.put("clear", new Clear(collectionManager));
+        commandHashMap.put("show", new Show(collectionManager));
+        commandHashMap.put("insert", new Insert(collectionManager));
+        commandHashMap.put("update", new UpdateId(collectionManager));
+        commandHashMap.put("remove_key", new RemoveKey(collectionManager));
+        commandHashMap.put("execute_script", new ExecuteScriptFileName(this));
+        commandHashMap.put("replace_if_lowe", new ReplaceIfLower(collectionManager));
+        commandHashMap.put("remove_lower_key", new RemoveLowerKey(collectionManager));
+        commandHashMap.put("count_less_than_health", new CountLessThanHealth(collectionManager));
+        commandHashMap.put("filter_less_than_chapter", new FilterLessThanChapter(collectionManager));
+        commandHashMap.put("filter_greater_than_chapter", new FilterGreaterThanChapter(collectionManager));
     }
 
-    /**
-     * Метод непосредственно обрабатывающий полученную команду
-     * <p>
-     *  Функции класса
-     *  <ul>
-     *      <li> Получение строки с командой и ее аргументами </li>
-     *      <li> выделение команды и аргументов </li>
-     *      <li> Валидирование команды  </li>
-     *      <li> Вызов полученной команды </li>
-     *      <li> Добавление вызванной команды в историю </li>
-     * </ul>
-     */
+    public DBCollectionManager getCollectionManager() {
+        return collectionManager;
+    }
+
     public void newCommand(String[] args, PrintWriter out, String login, String password) {
         String com = args[0];
+        Command command = commandHashMap.get(com);
+
+        if (command == null) {
+            logger.info("неизвестная команда");
+            out.println("неизвестная команда");
+            return;
+        }
 
         String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
 
-        if (commandHashMap.containsKey(com)) {
-            try {
-                logger.info("команда выполняется");
-                if (com.equals("register") || com.equals("login")) {
-                    commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
-                    commandHistory.add(com);
-                    return;
-                }
-                if (collectionManager.proverkUser(login, password) || (login.equals("admin") && password.equals("admin"))) {
-                    commandHashMap.get(com).execute(commandArgs, collectionManager, out, login, password);
-                    commandHistory.add(com);
-                    return;
-                } else {
-                    out.println("Ошибка, неверный логин или пароль");
-                }
-            } catch (ArgExeption e) {
-                logger.info("ошибка, команда не выполнена");
-                out.println("Ошибка, команда не выполнена");
-            }
-        } else {
-            logger.info("неизвестная команда");
-            out.println("неизвестная команда");
+        if (command.needsAuth()
+                && !collectionManager.proverkUser(login, password)
+                && !(login.equals("admin") && password.equals("admin"))) {
+            out.println("Ошибка, неверный логин или пароль");
+            return;
+        }
+
+        try {
+            logger.info("команда выполняется");
+            command.execute(new CommandContext(commandArgs, out, login, password));
+            commandHistory.add(com);
+        } catch (ArgExeption e) {
+            logger.info("ошибка, команда не выполнена");
+            out.println("Ошибка, команда не выполнена");
         }
     }
 }

@@ -2,7 +2,6 @@ package com.example.commands;
 
 import com.example.collection.SpaceMarine;
 import com.example.exeptions.ArgExeption;
-import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
@@ -11,10 +10,20 @@ import java.sql.SQLException;
 
 /**
  * Комманда для обновления элемента на новый по заданному ID
- *
  */
 public class UpdateId implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
+    private final DBCollectionManager collectionManager;
+
+    public UpdateId(DBCollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+    }
+
+    @Override
+    public void execute(CommandContext ctx) {
+        String[] args = ctx.getArgs();
+        PrintWriter out = ctx.getOut();
+        String login = ctx.getLogin();
+
         if (args.length != 12) {
             throw new ArgExeption();
         }
@@ -39,6 +48,8 @@ public class UpdateId implements Command {
             out.println("выполнить запрос не удалось");
         }
     }
+
+    @Override
     public String getComandInfo() {
         return "update id {element} : обновить значение элемента коллекции," +
                 " id которого равен заданному. Поля можно вводить по одному после приглашения," +

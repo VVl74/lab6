@@ -2,17 +2,25 @@ package com.example.commands;
 
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
-import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
 
 /**
  * Комманда для удаления элемента из коллекции по ключу
- *
  */
 public class RemoveKey implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
+    private final DBCollectionManager collectionManager;
+
+    public RemoveKey(DBCollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+    }
+
+    @Override
+    public void execute(CommandContext ctx) {
+        String[] args = ctx.getArgs();
+        PrintWriter out = ctx.getOut();
+
         if (args.length != 1) {
             throw new ArgExeption();
         }
@@ -23,12 +31,14 @@ public class RemoveKey implements Command {
             throw new InputExeption(e.getMessage(), out);
         }
 
-        if (collectionManager.removeMarine(id, collectionManager.getUserId(login))) {
+        if (collectionManager.removeMarine(id, collectionManager.getUserId(ctx.getLogin()))) {
             out.println("элемент удален\n");
         } else {
             out.println("элемент не найден или принадлежит другому пользователю\n");
         }
     }
+
+    @Override
     public String getComandInfo() {
         return "remove_key key (int) : удалить элемент из коллекции по его ключу\n";
     }

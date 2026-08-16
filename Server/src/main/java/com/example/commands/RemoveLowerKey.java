@@ -2,19 +2,25 @@ package com.example.commands;
 
 import com.example.exeptions.ArgExeption;
 import com.example.exeptions.InputExeption;
-import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+
 /**
- * Комманда для удаления всеъ элементов чей улюч меньше заданного
- *
+ * Комманда для удаления всех элементов чей ключ меньше заданного
  */
 public class RemoveLowerKey implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
+    private final DBCollectionManager collectionManager;
+
+    public RemoveLowerKey(DBCollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+    }
+
+    @Override
+    public void execute(CommandContext ctx) {
+        String[] args = ctx.getArgs();
+        PrintWriter out = ctx.getOut();
+
         if (args.length != 1) {
             throw new ArgExeption();
         }
@@ -25,10 +31,11 @@ public class RemoveLowerKey implements Command {
             throw new InputExeption(e.getMessage(), out);
         }
 
-        collectionManager.removeLowerKeyMarine(id, collectionManager.getUserId(login));
-
+        collectionManager.removeLowerKeyMarine(id, collectionManager.getUserId(ctx.getLogin()));
         out.println("все элементы чей ключ < заданного удалены\n");
     }
+
+    @Override
     public String getComandInfo() {
         return "remove_lower_key key (int) : удалить из коллекции все элементы, " +
                 "ключ которых меньше, чем заданный\n";

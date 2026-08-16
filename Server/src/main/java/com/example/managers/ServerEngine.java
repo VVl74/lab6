@@ -25,7 +25,7 @@ public class ServerEngine {
         commandManager = newCommandManager;
         servChannel = newServerManager;
         inputManager = newInputManager;
-        packFactory = new PackFactory();
+        packFactory = new PackFactory(commandManager);
         deserializer = new Deserializer();
     }
 
@@ -69,7 +69,7 @@ public class ServerEngine {
             }
 
             logger.info("Команда '{}' от {} (login: {}) обработана, готовлю ответ", parts.length > 0 ? parts[0] : "?", pack.client, login);
-            OutputPack outPack = packFactory.BuildPack(pack.client, commandManager, parts, login, password);
+            OutputPack outPack = packFactory.buildPack(pack.client, parsedRequest);
 
             sendPool.execute(() -> { // эта штука .execute просто запустит лямбду в фоновом режиме (т.е просто отправит на сервак наш пакет)
                 try {

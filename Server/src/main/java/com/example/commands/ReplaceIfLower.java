@@ -2,7 +2,6 @@ package com.example.commands;
 
 import com.example.collection.SpaceMarine;
 import com.example.exeptions.ArgExeption;
-import com.example.managers.CollectionManager;
 import com.example.managers.DBCollectionManager;
 import com.example.utils.Parser;
 
@@ -11,13 +10,22 @@ import java.sql.SQLException;
 
 /**
  * Комманда замены элемента если его здоровье меньше чем текущего
- *
  */
 public class ReplaceIfLower implements Command {
-    public void execute(String[] args, DBCollectionManager collectionManager, PrintWriter out, String login, String pasword) {
+    private final DBCollectionManager collectionManager;
+
+    public ReplaceIfLower(DBCollectionManager collectionManager) {
+        this.collectionManager = collectionManager;
+    }
+
+    @Override
+    public void execute(CommandContext ctx) {
+        String[] args = ctx.getArgs();
+        PrintWriter out = ctx.getOut();
+        String login = ctx.getLogin();
+
         if (args.length != 12) {
             throw new ArgExeption();
-            // System.out.println("Неверный ввод данных");
         }
         Parser parser = new Parser(out);
         int ownerId = collectionManager.getUserId(login);
@@ -39,9 +47,10 @@ public class ReplaceIfLower implements Command {
             }
         } catch (SQLException e) {
             out.println("запрос не удался");
-            return;
         }
     }
+
+    @Override
     public String getComandInfo() {
         return "replace_if_lowe key {element} : заменить значение по ключу, если новое значение меньше старого\n" +
                 "сравнение производится по полю health\n" +
