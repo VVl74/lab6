@@ -1,8 +1,8 @@
 package com.example.commands;
 
 /**
- * Интерфейс команды. Зависимости передаются в конструктор,
- * данные текущего запроса — в {@link CommandContext}.
+ * Интерфейс для всех команд для комманд паттерна
+ *
  */
 public interface Command {
     void execute(CommandContext ctx);

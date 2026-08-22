@@ -12,7 +12,15 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
- * Реестр команд и точка входа: проверка авторизации и вызов нужной команды.
+ * Ключевой класс приложения отвечающий за работу с командами
+ * <p>
+ *  Функции класса
+ *  <ul>
+ *      <li> Хранение списка команд </li>
+ *      <li> Валидирование и вызов нужных команд </li>
+ *      <li> Обработка ошибок </li>
+ *      <li> Хранение истории команд </li>
+ * </ul>
  */
 public class CommandManager {
     Logger logger = LoggerFactory.getLogger(CommandManager.class);

@@ -16,8 +16,7 @@ public class ServerManager implements ServerManagerInterface {
         InetAddress ipv4 = resolveIpv4(host);
         serverAdress = new InetSocketAddress(ipv4, port);
 
-        // Как в рабочей UDP-лабе: только IPv4. Иначе localhost на Mac/Java
-        // резолвится в ::1, а сервер слушает 0.0.0.0 — пакеты не встречаются.
+        // ipv4, а то localhost может уйти в ipv6
         channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.bind(new InetSocketAddress("0.0.0.0", 0));
         channel.configureBlocking(false);

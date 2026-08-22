@@ -15,7 +15,7 @@ import java.sql.SQLException;
  *      <li> Запуск сервера для обработки запросов клиентов </li>
  * </ul>
  */
-public class Main {
+public class    Main {
     /**
      * Начало программы
      *  <ol>

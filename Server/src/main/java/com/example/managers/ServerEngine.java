@@ -51,8 +51,6 @@ public class ServerEngine {
     }
 
     private void processing(InputPack pack) {
-        /**
-         */
         try {
             ParsedRequest parsedRequest = deserializer.deserialize(pack);
 
