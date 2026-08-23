@@ -47,7 +47,12 @@ public class Parser {
             String nparentlegion = FieldParser.parseParentLegion(args[9]);
             Long marinescount = FieldParser.parseMarinesCount(args[10]);
             String world = FieldParser.parseWorld(args[11]);
-            Chapter marinchapt = new Chapter(nchaptername, nparentlegion, marinescount, world);
+            Chapter marinchapt = new Chapter.Builder()
+                    .name(nchaptername)
+                    .parentLegion(nparentlegion)
+                    .marinesCount(marinescount)
+                    .world(world)
+                    .build();
             return new SpaceMarine.Builder()
                     .id(nid)
                     .name(name)
@@ -78,7 +83,12 @@ public class Parser {
             String s2 = FieldParser.parseParentLegion(args[1]);
             Long chislen = FieldParser.parseMarinesCount(args[2]);
             String s3 = FieldParser.parseWorld(args[3]);
-            return new Chapter(s1, s2, chislen, s3);
+            return new Chapter.Builder()
+                    .name(s1)
+                    .parentLegion(s2)
+                    .marinesCount(chislen)
+                    .world(s3)
+                    .build();
         } catch (Exception e) {
             throw new InputExeption(e.getMessage(), out);
         }
@@ -101,7 +111,12 @@ public class Parser {
         String parentLegion = rs.getString("chapter_parent_legion");
         long marinesCount = rs.getLong("chapter_marines_count");
         String world = rs.getString("chapter_world");
-        Chapter chapter = new Chapter(chapterName, parentLegion, marinesCount, world);
+        Chapter chapter = new Chapter.Builder()
+                .name(chapterName)
+                .parentLegion(parentLegion)
+                .marinesCount(marinesCount)
+                .world(world)
+                .build();
         SpaceMarine marine = new SpaceMarine.Builder()
                 .id(id)
                 .name(name)
