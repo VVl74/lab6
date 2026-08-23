@@ -20,17 +20,80 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
     private MeleeWeapon meleeWeapon; //Поле не может быть null
     private Chapter chapter; //Поле не может быть null
 
-    public SpaceMarine(int nid, String nname, Coordinates ncoordinates, LocalDateTime time,  double nhealth, AstartesCategory ncategory, Weapon nweaponType, MeleeWeapon nmeleeWeapon, Chapter nchapter, int owid) {
-        id = nid;
-        name = nname;
-        coordinates = ncoordinates;
-        creationDate = time;
-        health = nhealth;
-        category = ncategory;
-        weaponType = nweaponType;
-        meleeWeapon = nmeleeWeapon;
-        chapter = nchapter;
-        ownerId = owid;
+    private SpaceMarine(Builder builder) {
+        id = builder.id;
+        name = builder.name;
+        coordinates = builder.coordinates;
+        creationDate = builder.creationDate;
+        health = builder.health;
+        category = builder.category;
+        weaponType = builder.weapon;
+        meleeWeapon = builder.meleeWeapon;
+        chapter = builder.chapter;
+        ownerId = builder.ownerId;
+    }
+
+    public static class Builder {
+        private int id;
+        private String name;
+        private Coordinates coordinates;
+        private LocalDateTime creationDate;
+        private double health;
+        private AstartesCategory category;
+        private Weapon weapon;
+        private MeleeWeapon meleeWeapon;
+        private Chapter chapter;
+        private int ownerId;
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+        public Builder coordinates(Coordinates coordinates) {
+            this.coordinates = coordinates;
+            return this;
+        }
+        public Builder creationDate(LocalDateTime creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+        public Builder health(double health) {
+            this.health = health;
+            return this;
+        }
+        public Builder category(AstartesCategory category) {
+            this.category = category;
+            return this;
+        }
+
+        public Builder weapon(Weapon weapon) {
+            this.weapon = weapon;
+            return this;
+        }
+
+        public Builder meleeWeapon(MeleeWeapon meleeWeapon) {
+            this.meleeWeapon = meleeWeapon;
+            return this;
+        }
+
+        public Builder chapter(Chapter chapter) {
+            this.chapter = chapter;
+            return this;
+        }
+
+        public Builder ownerId(int ownerId) {
+            this.ownerId = ownerId;
+            return this;
+        }
+
+        public SpaceMarine build() {
+            return new SpaceMarine(this);
+        }
     }
 
     @Override

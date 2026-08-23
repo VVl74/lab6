@@ -40,15 +40,26 @@ public class Parser {
             Coordinates cord = new Coordinates(x, y);
             LocalDateTime ndate = LocalDateTime.now();
             double health = FieldParser.parseHealth(args[4]);
-            AstartesCategory nc = AstartesCategory.valueOf(FieldParser.parseCategory(args[5]));
-            Weapon nweapon = Weapon.valueOf(FieldParser.parseWeapon(args[6]));
-            MeleeWeapon nmeleeweapon = MeleeWeapon.valueOf(FieldParser.parseMeleeWeapon(args[7]));
+            AstartesCategory nc = FieldParser.parseCategory(args[5]);
+            Weapon nweapon = FieldParser.parseWeapon(args[6]);
+            MeleeWeapon nmeleeweapon = FieldParser.parseMeleeWeapon(args[7]);
             String nchaptername = FieldParser.parseChapterName(args[8]);
             String nparentlegion = FieldParser.parseParentLegion(args[9]);
             Long marinescount = FieldParser.parseMarinesCount(args[10]);
             String world = FieldParser.parseWorld(args[11]);
             Chapter marinchapt = new Chapter(nchaptername, nparentlegion, marinescount, world);
-            return new SpaceMarine(nid, name, cord, ndate, health, nc, nweapon, nmeleeweapon, marinchapt, ownerid);
+            return new SpaceMarine.Builder()
+                    .id(nid)
+                    .name(name)
+                    .coordinates(cord)
+                    .creationDate(ndate)
+                    .health(health)
+                    .category(nc)
+                    .weapon(nweapon)
+                    .meleeWeapon(nmeleeweapon)
+                    .chapter(marinchapt)
+                    .ownerId(ownerid)
+                    .build();
         } catch (Exception e) {
             throw new InputExeption(e.getMessage(), out);
         }
@@ -91,7 +102,18 @@ public class Parser {
         long marinesCount = rs.getLong("chapter_marines_count");
         String world = rs.getString("chapter_world");
         Chapter chapter = new Chapter(chapterName, parentLegion, marinesCount, world);
-        SpaceMarine marine = new SpaceMarine(id, name, coords, creationDate, health, category, weapon, meleeWeapon, chapter, ownerId);
+        SpaceMarine marine = new SpaceMarine.Builder()
+                .id(id)
+                .name(name)
+                .coordinates(coords)
+                .creationDate(creationDate)
+                .health(health)
+                .category(category)
+                .weapon(weapon)
+                .meleeWeapon(meleeWeapon)
+                .chapter(chapter)
+                .ownerId(ownerId)
+                .build();
         marine.setOwnerName(rs.getString("owner_name"));
         return marine;
     }

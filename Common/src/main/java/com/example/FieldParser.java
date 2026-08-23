@@ -1,13 +1,10 @@
 package com.example;
 
-import java.util.Set;
+import com.example.collection.AstartesCategory;
+import com.example.collection.MeleeWeapon;
+import com.example.collection.Weapon;
 
 public class FieldParser {
-    public static final Set<String> CATEGORIES = Set.of("ASSAULT", "TACTICAL", "HELIX");
-    public static final Set<String> WEAPONS = Set.of("BOLTGUN", "MELTAGUN", "FLAMER", "HEAVY_FLAMER");
-    public static final Set<String> MELEE_WEAPONS = Set.of(
-            "CHAIN_SWORD", "POWER_SWORD", "CHAIN_AXE", "MANREAPER", "POWER_FIST");
-
     public static int parseId(String raw) {
         int id = parseInt(raw, "id");
         if (id <= 0) {
@@ -47,16 +44,25 @@ public class FieldParser {
         return health;
     }
 
-    public static String parseCategory(String raw) {
-        return parseEnum(raw, CATEGORIES, "категория");
+    public static AstartesCategory parseCategory(String raw) {
+        return parseEnum(raw, AstartesCategory.class, "категория");
     }
 
-    public static String parseWeapon(String raw) {
-        return parseEnum(raw, WEAPONS, "основное оружие");
+    public static Weapon parseWeapon(String raw) {
+        return parseEnum(raw, Weapon.class, "основное оружие");
     }
 
-    public static String parseMeleeWeapon(String raw) {
-        return parseEnum(raw, MELEE_WEAPONS, "оружие ближнего боя");
+    public static MeleeWeapon parseMeleeWeapon(String raw) {
+        return parseEnum(raw, MeleeWeapon.class, "оружие ближнего боя");
+    }
+
+    public static String enumNames(Class<? extends Enum<?>> type) {
+        Enum<?>[] values = type.getEnumConstants();
+        String[] names = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            names[i] = values[i].name();
+        }
+        return String.join(", ", names);
     }
 
     public static String parseChapterName(String raw) {
@@ -106,15 +112,15 @@ public class FieldParser {
         return value;
     }
 
-    private static String parseEnum(String raw, Set<String> allowed, String field) {
+    private static <E extends Enum<E>> E parseEnum(String raw, Class<E> type, String field) {
         if (raw == null || raw.trim().isEmpty()) {
             throw new IllegalArgumentException(field + " не может быть пустым");
         }
-        String value = raw.trim().toUpperCase();
-        if (!allowed.contains(value)) {
-            throw new IllegalArgumentException(field + " должно быть одним из: " + String.join(", ", allowed));
+        try {
+            return Enum.valueOf(type, raw.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(field + " должно быть одним из: " + enumNames(type));
         }
-        return value;
     }
 
     private static int parseInt(String raw, String field) {

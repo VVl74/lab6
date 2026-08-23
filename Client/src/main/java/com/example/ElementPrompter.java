@@ -1,5 +1,9 @@
 package com.example;
 
+import com.example.collection.AstartesCategory;
+import com.example.collection.MeleeWeapon;
+import com.example.collection.Weapon;
+
 public class ElementPrompter {
     private final Reader reader;
 
@@ -14,9 +18,12 @@ public class ElementPrompter {
                 FieldParser.toArg(askFloat("Введите координату X: ", FieldParser::parseX)),
                 FieldParser.toArg(askLong("Введите координату Y: ", FieldParser::parseY)),
                 FieldParser.toArg(askDouble("Введите уровень здоровья: ", FieldParser::parseHealth)),
-                ask("Введите категорию (ASSAULT, TACTICAL, HELIX): ", FieldParser::parseCategory),
-                ask("Введите основное оружие (BOLTGUN, MELTAGUN, FLAMER, HEAVY_FLAMER): ", FieldParser::parseWeapon),
-                ask("Введите оружие ближнего боя (CHAIN_SWORD, POWER_SWORD, CHAIN_AXE, MANREAPER, POWER_FIST): ", FieldParser::parseMeleeWeapon),
+                ask("Введите категорию (" + FieldParser.enumNames(AstartesCategory.class) + "): ",
+                        s -> FieldParser.parseCategory(s).name()),
+                ask("Введите основное оружие (" + FieldParser.enumNames(Weapon.class) + "): ",
+                        s -> FieldParser.parseWeapon(s).name()),
+                ask("Введите оружие ближнего боя (" + FieldParser.enumNames(MeleeWeapon.class) + "): ",
+                        s -> FieldParser.parseMeleeWeapon(s).name()),
                 ask("Введите название клана: ", FieldParser::parseChapterName),
                 ask("Введите имя командира легиона: ", FieldParser::parseParentLegion),
                 FieldParser.toArg(askLong("Введите количество космодесантников: ", FieldParser::parseMarinesCount)),
