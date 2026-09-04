@@ -11,7 +11,7 @@ public class DBManager {
     private static DBManager instance;
     final String USER = "s494533";
     final String PASSWD = "eW5IfMpYfQNlAvJ7";
-    final String URL = "jdbc:postgresql://localhost:5432/studs";
+    final String URL = "jdbc:postgresql://localhost:1024/studs";
     private Connection connection; // ПОдключение к нашей базе
 
     // Конструктор дефолтный
