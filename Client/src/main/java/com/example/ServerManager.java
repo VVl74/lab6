@@ -1,32 +1,30 @@
 package com.example;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.StandardProtocolFamily;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 
 public class ServerManager implements ServerManagerInterface {
-    DatagramChannel channel;
     InetSocketAddress serverAdress;
+    private Socket socket;
+    private DataInputStream in;
+    private DataOutputStream out;
 
     public ServerManager(String host, int port) throws IOException {
         InetAddress ipv4 = resolveIpv4(host);
         serverAdress = new InetSocketAddress(ipv4, port);
-
-        // ipv4, а то localhost может уйти в ipv6
-        channel = DatagramChannel.open(StandardProtocolFamily.INET);
-        channel.bind(new InetSocketAddress("0.0.0.0", 0));
-        channel.configureBlocking(false);
 
         if (serverAdress.isUnresolved()) {
             System.out.println("[ОШИБКА] Не удалось определить IPv4 сервера '"
                     + host + "'. Проверь домен и подключение к сети ИТМО.");
         } else {
             System.out.println("[СЕТЬ] Адрес сервера: " + serverAdress);
-            System.out.println("[СЕТЬ] Локальный UDP-сокет: " + channel.getLocalAddress());
         }
     }
 
@@ -49,42 +47,58 @@ public class ServerManager implements ServerManagerInterface {
         throw new IOException("Нет IPv4-адреса для хоста '" + host + "'");
     }
 
+    private void connect() throws IOException {
+        closeQuietly();
+        socket = new Socket();
+        socket.connect(serverAdress, 5000);
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
+    }
+
     public ByteBuffer receive(ByteBuffer vvodBuf) throws IOException, InterruptedException {
-        long otpravTime = System.currentTimeMillis();
-        long timeOut = 5000;
-
-        System.out.println("[ПРИЁМ] Ожидаем ответ от сервера " + serverAdress);
-
-        while(true) {
-
-            java.net.SocketAddress from  = channel.receive(vvodBuf);
-
-            if (from != null) {
-                int size = vvodBuf.position();
-                System.out.println("[ПРИЁМ] Получен ответ " + size + " байт от " + from
-                        + " (ждали " + (System.currentTimeMillis() - otpravTime) + " мс)");
-                break;
-            }
-
-            if (System.currentTimeMillis() - otpravTime > timeOut) {
-                System.out.println("[ПРИЁМ] Сервер не ответил за " + timeOut + " мс");
-                return null;
-            }
-
-            Thread.sleep(10);
+        if (socket == null || socket.isClosed()) {
+            return null;
         }
-        return vvodBuf;
+        try {
+            socket.setSoTimeout(5000);
+            int size = in.readInt();
+            if (size < 0 || size > vvodBuf.capacity()) {
+                throw new IOException("неверный размер пакета: " + size);
+            }
+            byte[] data = new byte[size];
+            in.readFully(data);
+            System.out.println("[ПРИЁМ] Получен ответ " + size + " байт от " + serverAdress);
+            vvodBuf.clear();
+            vvodBuf.put(data);
+            closeQuietly();
+            return vvodBuf;
+        } catch (SocketTimeoutException e) {
+            System.out.println("[ПРИЁМ] Сервер не ответил за 5000 мс");
+            closeQuietly();
+            return null;
+        }
     }
 
     public void send(ByteBuffer buf) throws IOException {
         buf.rewind();
-        int size = buf.remaining();
-        int sent = channel.send(buf, serverAdress);
-        if (sent == 0) {
-            System.out.println("[ОТПРАВКА] Пакет не ушёл (send вернул 0), повторю");
-            buf.rewind();
-            sent = channel.send(buf, serverAdress);
+        byte[] data = new byte[buf.remaining()];
+        buf.get(data);
+        connect();
+        out.writeInt(data.length);
+        out.write(data);
+        out.flush();
+        System.out.println("[ОТПРАВКА] Отправлен пакет " + data.length + " байт на сервер " + serverAdress);
+    }
+
+    private void closeQuietly() {
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException ignored) {
         }
-        System.out.println("[ОТПРАВКА] Отправлен пакет " + sent + "/" + size + " байт на сервер " + serverAdress);
+        socket = null;
+        in = null;
+        out = null;
     }
 }
